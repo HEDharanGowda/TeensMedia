@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import { FiUpload, FiAlertCircle } from 'react-icons/fi';
+import './CreatePost.css';
 
 const CreatePost = ({ userId, onPostSuccess, onBanDetected }) => {
   const [preview, setPreview] = useState(null);
@@ -87,34 +88,10 @@ const CreatePost = ({ userId, onPostSuccess, onBanDetected }) => {
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      style={{
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, #ffdde1 0%, #ee9ca7 100%)',
-        padding: '20px',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center'
-      }}
+      className="create-post-page"
     >
-      <motion.div 
-        
-        style={{
-          background: 'rgba(255,255,255,0.9)',
-          borderRadius: '30px',
-          padding: '30px',
-          width: '90%',
-          maxWidth: '500px',
-          marginTop: '80px',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.1)'
-        }}
-      >
-        <h1 style={{
-          fontFamily: '"Comic Neue", cursive',
-          color: '#2d3436',
-          fontSize: '2.5rem',
-          textAlign: 'center',
-          margin: '0 0 30px 0'
-        }}>
+      <motion.div className="create-post-card">
+        <h1 className="create-post-title">
           Add Post
         </h1>
 
@@ -122,16 +99,7 @@ const CreatePost = ({ userId, onPostSuccess, onBanDetected }) => {
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            style={{
-              background: '#ffecec',
-              color: '#ff6b6b',
-              padding: '15px',
-              borderRadius: '10px',
-              marginBottom: '20px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px'
-            }}
+            className="create-post-error"
           >
             <FiAlertCircle size={20} />
             <span>{error}</span>
@@ -145,25 +113,14 @@ const CreatePost = ({ userId, onPostSuccess, onBanDetected }) => {
             ref={fileInputRef}
             onChange={handleImageChange}
             accept="image/jpeg,image/png"
-            style={{ display: 'none' }}
+            className="create-post-input"
           />
           <motion.label 
             htmlFor="post-upload" 
             className="upload-label"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              minHeight: '300px',
-              background: preview ? 'white' : 'rgba(255,255,255,0.9)',
-              borderRadius: '20px',
-              border: `4px dashed ${preview ? '#74b9ff' : '#a55eea'}`,
-              cursor: 'pointer',
-              position: 'relative',
-              overflow: 'hidden'
-            }}
+            style={{ borderColor: preview ? '#74b9ff' : '#a55eea' }}
           >
             {preview ? (
               <motion.img 
@@ -171,43 +128,18 @@ const CreatePost = ({ userId, onPostSuccess, onBanDetected }) => {
                 alt="Preview" 
                 initial={{ scale: 0.9 }}
                 animate={{ scale: 1 }}
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'contain',
-                  padding: '10px'
-                }}
+                className="create-post-preview"
               />
             ) : (
               <motion.div 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: '15px',
-                  padding: '30px'
-                }}
+                className="create-post-placeholder"
               >
-                <div style={{
-                  width: '80px',
-                  height: '80px',
-                  background: '#a55eea',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
+                <div className="create-post-placeholder-icon-wrapper">
                   <FiUpload size={40} color="white" />
                 </div>
-                <p style={{
-                  fontFamily: '"Comic Neue", cursive',
-                  fontSize: '1.4rem',
-                  color: '#2d3436',
-                  textAlign: 'center',
-                  margin: 0
-                }}>
+                <p className="create-post-placeholder-text">
                   Add Your Art or Pictures!<br />
                   Let's inspire the world! 🎉
                 </p>
@@ -222,22 +154,8 @@ const CreatePost = ({ userId, onPostSuccess, onBanDetected }) => {
             whileTap={{ scale: 0.95 }}
             onClick={handleSubmit}
             disabled={isLoading}
-            style={{
-              marginTop: '20px',
-              width: '100%',
-              padding: '15px',
-              background: isLoading ? '#b2bec3' : '#74b9ff',
-              color: 'white',
-              border: 'none',
-              borderRadius: '15px',
-              fontFamily: '"Comic Neue", cursive',
-              fontSize: '1.2rem',
-              cursor: isLoading ? 'not-allowed' : 'pointer',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              gap: '10px'
-            }}
+            className="create-post-submit"
+            style={{ background: isLoading ? '#b2bec3' : '#74b9ff' }}
           >
             {isLoading ? (
               <>

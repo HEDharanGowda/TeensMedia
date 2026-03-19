@@ -1,17 +1,157 @@
-/* Feed.css or whatever file you imported */
+.feed-page {
+  background: #fafafa;
+  min-height: 100vh;
+  padding-top: 80px;
+  padding-bottom: 20px;
+}
+
 .stories-container {
-    display: flex;
-    flex-direction: row;
-    overflow-x: auto;
-    padding: 20px 0;
-    margin-bottom: 30px;
-    gap: 25px;
-  
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE and Edge */
-  }
-  
-  .stories-container::-webkit-scrollbar {
-    display: none; /* Chrome, Safari */
-  }
+  display: flex;
+  overflow-x: auto;
+  gap: 16px;
+  padding: 16px;
+  margin: 0 auto 24px;
+  background: #fff;
+  border: 1px solid #dbdbdb;
+  border-radius: 8px;
+  max-width: 600px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.stories-container::-webkit-scrollbar {
+  display: none;
+}
+
+.story-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.story-ring {
+  background: #e0e0e0;
+  padding: 2px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.story-ring--active {
+  background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+}
+
+.story-ring__inner {
+  background: #fff;
+  padding: 2px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.story-image {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #fff;
+}
+
+.story-username {
+  font-size: 12px;
+  color: #262626;
+  max-width: 74px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.feed-posts-grid {
+  max-width: 600px;
+  margin: 0 auto;
+  display: grid;
+  gap: 24px;
+}
+
+.feed-post-card {
+  background: #fff;
+  border: 1px solid #dbdbdb;
+  border-radius: 8px;
+}
+
+.feed-post-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border-bottom: 1px solid #efefef;
+}
+
+.feed-post-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.feed-post-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #efefef;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.feed-post-avatar-icon {
+  font-size: 18px;
+}
+
+.feed-post-username {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.feed-post-time {
+  color: #8e8e8e;
+  font-size: 12px;
+}
+
+.feed-post-caption {
+  padding: 14px 16px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.feed-empty {
+  background: #fff;
+  padding: 40px 20px;
+  border-radius: 8px;
+  text-align: center;
+  border: 1px solid #dbdbdb;
+}
+
+.feed-empty-icon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+}
+
+.feed-empty-title {
+  font-family: system-ui, -apple-system, sans-serif;
+  color: #262626;
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.feed-empty-subtitle {
+  color: #8e8e8e;
+  margin: 8px 0 0;
+  font-size: 0.9rem;
+}
   

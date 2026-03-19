@@ -1,70 +1,126 @@
-.create-post-container {
-    padding: 20px;
-    max-width: 500px;
-    margin: 0 auto;
+.create-post-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #ffdde1 0%, #ee9ca7 100%);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.create-post-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 30px;
+  padding: 30px;
+  width: 90%;
+  max-width: 500px;
+  margin-top: 80px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.create-post-title {
+  font-family: 'Comic Neue', cursive;
+  color: #2d3436;
+  font-size: 2.5rem;
+  text-align: center;
+  margin: 0 0 30px;
+}
+
+.create-post-error {
+  background: #ffecec;
+  color: #ff6b6b;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.create-post-input {
+  display: none;
+}
+
+.upload-area {
+  text-align: center;
+}
+
+.upload-label {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 20px;
+  border: 4px dashed #a55eea;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.create-post-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 10px;
+}
+
+.create-post-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  padding: 30px;
+}
+
+.create-post-placeholder-icon-wrapper {
+  width: 80px;
+  height: 80px;
+  background: #a55eea;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.create-post-placeholder-text {
+  font-family: 'Comic Neue', cursive;
+  font-size: 1.4rem;
+  color: #2d3436;
+  text-align: center;
+  margin: 0;
+}
+
+.create-post-submit {
+  margin-top: 20px;
+  width: 100%;
+  padding: 15px;
+  color: #fff;
+  border: none;
+  border-radius: 15px;
+  font-family: 'Comic Neue', cursive;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.create-post-submit:disabled {
+  cursor: not-allowed;
+}
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
-  
-  .upload-area {
-    border: 2px dashed #dbdbdb;
-    border-radius: 8px;
-    padding: 40px;
-    text-align: center;
-    margin-bottom: 20px;
-    cursor: pointer;
-  }
-  
-  .upload-label {
-    display: block;
-    cursor: pointer;
-  }
-  
-  .upload-prompt {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    color: #8e8e8e;
-  }
-  
-  .image-preview {
-    width: 100%;
-    max-height: 400px;
-    object-fit: contain;
-    border-radius: 4px;
-  }
-  
-  .post-details {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
-  
-  .caption-input {
-    width: 100%;
-    min-height: 100px;
-    padding: 12px;
-    border: 1px solid #dbdbdb;
-    border-radius: 8px;
-    resize: vertical;
-    font-family: inherit;
-  }
-  
-  .post-button {
-    padding: 10px;
-    background-color: #0095f6;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
-  
-  .post-button:hover {
-    background-color: #0077cc;
-  }
-  
-  .post-button:disabled {
-    background-color: #b2dffc;
-    cursor: not-allowed;
-  }
+}

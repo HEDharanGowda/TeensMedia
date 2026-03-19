@@ -1,8 +1,8 @@
 
-
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import './Auth.css';
 
 const Login = ({ onLogin }) => {
   const [username, setUsername] = useState('');
@@ -22,12 +22,24 @@ const Login = ({ onLogin }) => {
   ];
 
   useEffect(() => {
-    // Change background every 5 seconds
     const interval = setInterval(() => {
       setCurrentBg((prev) => (prev + 1) % backgrounds.length);
     }, 5000);
     return () => clearInterval(interval);
   }, []);
+
+  const particles = useMemo(
+    () =>
+      Array.from({ length: 10 }, () => ({
+        size: Math.random() * 20 + 5,
+        left: Math.random() * 100,
+        top: Math.random() * 100,
+        moveX: Math.random() * 200 - 100,
+        moveY: Math.random() * 200 - 100,
+        duration: Math.random() * 10 + 5,
+      })),
+    [],
+  );
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -59,66 +71,36 @@ const Login = ({ onLogin }) => {
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      style={{
-        minHeight: '100vh',
-        padding: '20px',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        position: 'relative',
-        overflow: 'hidden'
-      }}
+      className="auth-page"
     >
-      {/* Animated 3D Background */}
       <motion.div
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          zIndex: 0,
-          backgroundImage: `url(${backgrounds[currentBg]})`
-        }}
+        className="auth-background"
+        style={{ backgroundImage: `url(${backgrounds[currentBg]})` }}
         key={currentBg}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
       />
       
-      {/* Dark overlay for better readability */}
-      <div style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        backgroundColor: 'rgba(0,0,0,0.4)',
-        zIndex: 0
-      }} />
+      <div className="auth-overlay" />
 
-      {/* Floating Particles */}
-      {[...Array(10)].map((_, i) => (
+      {particles.map((particle, i) => (
         <motion.div
           key={i}
+          className="auth-particle"
           style={{
-            position: 'absolute',
-            width: `${Math.random() * 20 + 5}px`,
-            height: `${Math.random() * 20 + 5}px`,
-            background: 'rgba(255,255,255,0.3)',
-            borderRadius: '50%',
-            zIndex: 0
+            width: `${particle.size}px`,
+            height: `${particle.size}px`,
+            left: `${particle.left}%`,
+            top: `${particle.top}%`,
           }}
           animate={{
-            x: [0, Math.random() * 200 - 100],
-            y: [0, Math.random() * 200 - 100],
+            x: [0, particle.moveX],
+            y: [0, particle.moveY],
             opacity: [0.3, 0.8, 0.3]
           }}
           transition={{
-            duration: Math.random() * 10 + 5,
+            duration: particle.duration,
             repeat: Infinity,
             repeatType: 'reverse'
           }}
@@ -128,38 +110,18 @@ const Login = ({ onLogin }) => {
       <motion.div 
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
-        style={{
-          background: 'rgba(255,255,255,0.95)',
-          borderRadius: '30px',
-          padding: '40px 30px',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
-          width: '90%',
-          maxWidth: '450px',
-          zIndex: 1,
-          border: '1px solid rgba(255,255,255,0.3)',
-          backdropFilter: 'blur(5px)'
-        }}
+        className="auth-card"
       >
-        <div style={{ textAlign: 'center', marginBottom: '30px' }}>
+        <div className="auth-header">
           <motion.h1 
-            style={{
-              color: '#2d3436',
-              fontFamily: '"Comic Neue", cursive',
-              fontSize: '2.5rem',
-              margin: '0 0 10px 0',
-              textShadow: '0 2px 4px rgba(0,0,0,0.1)'
-            }}
+            className="auth-title"
             animate={{ y: [0, -5, 0] }}
             transition={{ duration: 2, repeat: Infinity }}
           >
             Welcome Back Champ! 
           </motion.h1>
           <motion.p 
-            style={{
-              color: '#636e72',
-              fontFamily: '"Comic Neue", cursive',
-              fontSize: '1.1rem'
-            }}
+            className="auth-subtitle"
             animate={{ scale: [1, 1.02, 1] }}
             transition={{ duration: 3, repeat: Infinity }}
           >
@@ -171,40 +133,20 @@ const Login = ({ onLogin }) => {
           <motion.div 
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            style={{
-              background: '#ff7675',
-              color: 'white',
-              padding: '12px',
-              borderRadius: '10px',
-              marginBottom: '20px',
-              textAlign: 'center',
-              fontFamily: '"Comic Neue", cursive'
-            }}
+            className="auth-error"
           >
             ⚠️ {error}
           </motion.div>
         )}
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
+        <form onSubmit={handleSubmit} className="auth-form">
           <motion.div whileHover={{ scale: 1.02 }}>
             <input
               type="text"
               placeholder="🦸 Enter Username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              style={{
-                width: '90%',
-                padding: '18px 25px',
-                borderRadius: '15px',
-                border: '3px solid #74b9ff',
-                fontSize: '1.2rem',
-                fontFamily: '"Comic Neue", cursive',
-                background: 'rgba(255,255,255,0.8)',
-                color: '#2d3436',
-                outline: 'none',
-                boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-                borderColor: '#74b9ff'
-              }}
+              className="auth-input auth-input--primary"
               required
             />
           </motion.div>
@@ -215,19 +157,7 @@ const Login = ({ onLogin }) => {
               placeholder="🔐 Enter Secret Code"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              style={{
-                width: '90%',
-                padding: '18px 25px',
-                borderRadius: '15px',
-                border: '3px solid #74b9ff',
-                fontSize: '1.2rem',
-                fontFamily: '"Comic Neue", cursive',
-                background: 'rgba(255,255,255,0.8)',
-                color: '#2d3436',
-                outline: 'none',
-                boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-                borderColor: '#a55eea'
-              }}
+              className="auth-input auth-input--accent"
               required
             />
           </motion.div>
@@ -237,22 +167,7 @@ const Login = ({ onLogin }) => {
             disabled={isLoading}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            style={{
-              background: 'linear-gradient(45deg, #ff7675, #fdcb6e)',
-              padding: '18px',
-              borderRadius: '20px',
-              border: 'none',
-              color: 'white',
-              fontSize: '1.4rem',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '12px',
-              textShadow: '1px 1px 2px rgba(0,0,0,0.2)',
-              boxShadow: '0 4px 8px rgba(0,0,0,0.2)'
-            }}
+            className="auth-submit auth-submit--login"
           >
             {isLoading ? (
               <motion.span
@@ -276,25 +191,13 @@ const Login = ({ onLogin }) => {
         </form>
 
         <motion.p 
-          style={{ 
-            textAlign: 'center', 
-            marginTop: '25px',
-            color: '#636e72',
-            fontFamily: '"Comic Neue", cursive',
-            fontSize: '1.1rem'
-          }}
+          className="auth-switch"
           whileHover={{ scale: 1.05 }}
         >
           New to our world?{' '}
           <span 
             onClick={() => navigate('/register')}
-            style={{
-              color: '#e84393',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              textDecoration: 'underline wavy',
-              padding: '5px'
-            }}
+            className="auth-switch-link"
           >
             Join the adventure! 🎉
           </span>

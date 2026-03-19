@@ -1,8 +1,8 @@
 
-
 import React from 'react';
 import Post from './Post';
 import { motion } from 'framer-motion';
+import './Feed.css';
 
 const Feed = ({ posts }) => {
   const stories = Array.from({ length: 5 }, (_, i) => ({
@@ -19,180 +19,69 @@ const Feed = ({ posts }) => {
   }));
 
   return (
-    <div style={{
-      background: '#fafafa',
-      minHeight: '100vh',
-      paddingTop: '80px',
-      paddingBottom: '20px'
-    }}>
-      {/* Stories */}
-      <motion.div 
-        className="stories-container"
-        style={{ 
-          display: 'flex',
-          overflowX: 'auto',
-          gap: '16px',
-          padding: '16px',
-          marginBottom: '24px',
-          scrollbarWidth: 'none',
-          msOverflowStyle: 'none',
-          background: '#ffffff',
-          border: '1px solid #dbdbdb',
-          borderRadius: '8px',
-          maxWidth: '600px',
-          margin: '0 auto 24px'
-        }}
-      >
-        {stories.map((story, i) => (
+    <div className="feed-page">
+      <motion.div className="stories-container">
+        {stories.map((story) => (
           <motion.div 
             key={story.id}
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '6px',
-              cursor: 'pointer'
-            }}
+            className="story-item"
           >
-            <div style={{
-              background: story.hasStory 
-                ? 'linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)' 
-                : '#e0e0e0',
-              padding: '2px',
-              borderRadius: '50%',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center'
-            }}>
-              <div style={{
-                background: '#ffffff',
-                padding: '2px',
-                borderRadius: '50%',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center'
-              }}>
+            <div className={story.hasStory ? 'story-ring story-ring--active' : 'story-ring'}>
+              <div className="story-ring__inner">
                 <img 
                   src={story.image} 
                   alt={story.username}
-                  style={{
-                    width: '64px',
-                    height: '64px',
-                    borderRadius: '50%',
-                    objectFit: 'cover',
-                    border: '2px solid white'
-                  }}
+                  className="story-image"
                 />
               </div>
             </div>
-            <span style={{
-              fontSize: '12px',
-              color: '#262626',
-              maxWidth: '74px',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap'
-            }}>
+            <span className="story-username">
               {story.username}
             </span>
           </motion.div>
         ))}
       </motion.div>
 
-      {/* Posts */}
-      <div style={{
-        maxWidth: '600px',
-        margin: '0 auto',
-        display: 'grid',
-        gap: '24px'
-      }}>
+      <div className="feed-posts-grid">
         {posts.length > 0 ? (
           posts.map((post) => (
-            <div key={post.timestamp} style={{
-              background: '#ffffff',
-              border: '1px solid #dbdbdb',
-              borderRadius: '8px'
-            }}>
-              {/* Post Header */}
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '14px 16px',
-                borderBottom: '1px solid #efefef'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <div style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '50%',
-                    background: '#efefef',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    overflow: 'hidden'
-                  }}>
-                    <span style={{ fontSize: '18px' }}>👤</span>
+            <article key={post.timestamp} className="feed-post-card">
+              <div className="feed-post-header">
+                <div className="feed-post-user">
+                  <div className="feed-post-avatar">
+                    <span className="feed-post-avatar-icon">👤</span>
                   </div>
-                  <span style={{
-                    fontWeight: '600',
-                    fontSize: '14px'
-                  }}>
+                  <span className="feed-post-username">
                     anonymous_user
                   </span>
                 </div>
-                <span style={{
-                  color: '#8e8e8e',
-                  fontSize: '12px'
-                }}>
+                <span className="feed-post-time">
                   {new Date(post.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
               </div>
 
-              {/* Post Image - Using your original Post component */}
               <Post post={post} />
 
-              {/* Caption Only - No username/timestamp */}
               {post.caption && (
-                <div style={{
-                  padding: '14px 16px',
-                  fontSize: '14px',
-                  lineHeight: '1.4'
-                }}>
+                <div className="feed-post-caption">
                   {post.caption}
                 </div>
               )}
-            </div>
+            </article>
           ))
         ) : (
           <motion.div 
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            style={{
-              background: '#ffffff',
-              padding: '40px 20px',
-              borderRadius: '8px',
-              textAlign: 'center',
-              border: '1px solid #dbdbdb'
-            }}
+            className="feed-empty"
           >
-            <div style={{ fontSize: '3rem', marginBottom: '16px' }}>📷</div>
-            <h2 style={{
-              fontFamily: 'system-ui, -apple-system, sans-serif',
-              color: '#262626',
-              margin: 0,
-              fontSize: '1.2rem',
-              fontWeight: '600'
-            }}>
+            <div className="feed-empty-icon">📷</div>
+            <h2 className="feed-empty-title">
               Share Your First Post!
             </h2>
-            <p style={{
-              color: '#8e8e8e',
-              margin: '8px 0 0',
-              fontSize: '0.9rem'
-            }}>
+            <p className="feed-empty-subtitle">
               When you share photos and videos, they'll appear on your profile.
             </p>
           </motion.div>

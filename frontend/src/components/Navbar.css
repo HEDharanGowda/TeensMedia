@@ -1,0 +1,48 @@
+.navbar {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  background: #fff;
+  padding: 12px 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  border-bottom: 1px solid #dbdbdb;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
+}
+
+.navbar__inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 15px;
+}
+
+.navbar__brand {
+  font-family: 'Billabong', cursive;
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #262626;
+  cursor: default;
+  user-select: none;
+}
+
+.navbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  color: #262626;
+}
+
+.navbar__link {
+  text-decoration: none;
+  color: inherit;
+  display: inline-flex;
+}
+
+.navbar__logout {
+  cursor: pointer;
+  display: inline-flex;
+}

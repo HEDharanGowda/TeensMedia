@@ -4,6 +4,8 @@ import Post from './Post';
 import { motion } from 'framer-motion';
 import './Feed.css';
 
+const Motion = motion;
+
 const Feed = ({ posts }) => {
   const stories = Array.from({ length: 5 }, (_, i) => ({
     id: i,
@@ -20,9 +22,9 @@ const Feed = ({ posts }) => {
 
   return (
     <div className="feed-page">
-      <motion.div className="stories-container">
+      <Motion.div className="stories-container">
         {stories.map((story) => (
-          <motion.div 
+          <Motion.div 
             key={story.id}
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
@@ -40,9 +42,9 @@ const Feed = ({ posts }) => {
             <span className="story-username">
               {story.username}
             </span>
-          </motion.div>
+          </Motion.div>
         ))}
-      </motion.div>
+      </Motion.div>
 
       <div className="feed-posts-grid">
         {posts.length > 0 ? (
@@ -72,7 +74,7 @@ const Feed = ({ posts }) => {
             </article>
           ))
         ) : (
-          <motion.div 
+          <Motion.div 
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             className="feed-empty"
@@ -84,7 +86,7 @@ const Feed = ({ posts }) => {
             <p className="feed-empty-subtitle">
               When you share photos and videos, they'll appear on your profile.
             </p>
-          </motion.div>
+          </Motion.div>
         )}
       </div>
     </div>

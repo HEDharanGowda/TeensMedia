@@ -1,11 +1,13 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { motion } from 'framer-motion';
 import { FiUpload, FiAlertCircle } from 'react-icons/fi';
+import api, { getAuthHeaders } from '../services/api';
 import './CreatePost.css';
 
-const CreatePost = ({ userId, onPostSuccess, onBanDetected }) => {
+const Motion = motion;
+
+const CreatePost = ({ token, onPostSuccess, onBanDetected }) => {
   const [preview, setPreview] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -45,9 +47,10 @@ const CreatePost = ({ userId, onPostSuccess, onBanDetected }) => {
 
     try {
       const base64String = preview.split(',')[1] || preview;
-      const response = await axios.post('http://localhost:5000/api/check', {
+      const response = await api.post('/check', {
         imageBase64: base64String,
-        userId: Number(userId)
+      }, {
+        headers: getAuthHeaders(token),
       });
 
       switch (response.data.status) {
@@ -85,25 +88,25 @@ const CreatePost = ({ userId, onPostSuccess, onBanDetected }) => {
   };
   
   return (
-    <motion.div 
+    <Motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       className="create-post-page"
     >
-      <motion.div className="create-post-card">
+      <Motion.div className="create-post-card">
         <h1 className="create-post-title">
           Add Post
         </h1>
 
         {error && (
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             className="create-post-error"
           >
             <FiAlertCircle size={20} />
             <span>{error}</span>
-          </motion.div>
+          </Motion.div>
         )}
 
         <div className="upload-area">
@@ -115,7 +118,7 @@ const CreatePost = ({ userId, onPostSuccess, onBanDetected }) => {
             accept="image/jpeg,image/png"
             className="create-post-input"
           />
-          <motion.label 
+          <Motion.label 
             htmlFor="post-upload" 
             className="upload-label"
             whileHover={{ scale: 1.05 }}
@@ -123,7 +126,7 @@ const CreatePost = ({ userId, onPostSuccess, onBanDetected }) => {
             style={{ borderColor: preview ? '#74b9ff' : '#a55eea' }}
           >
             {preview ? (
-              <motion.img 
+              <Motion.img 
                 src={preview} 
                 alt="Preview" 
                 initial={{ scale: 0.9 }}
@@ -131,7 +134,7 @@ const CreatePost = ({ userId, onPostSuccess, onBanDetected }) => {
                 className="create-post-preview"
               />
             ) : (
-              <motion.div 
+              <Motion.div 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 className="create-post-placeholder"
@@ -143,13 +146,13 @@ const CreatePost = ({ userId, onPostSuccess, onBanDetected }) => {
                   Add Your Art or Pictures!<br />
                   Let's inspire the world! 🎉
                 </p>
-              </motion.div>
+              </Motion.div>
             )}
-          </motion.label>
+          </Motion.label>
         </div>
 
         {preview && (
-          <motion.button
+          <Motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleSubmit}
@@ -165,10 +168,10 @@ const CreatePost = ({ userId, onPostSuccess, onBanDetected }) => {
             ) : (
               'Upload  Picture 🚀'
             )}
-          </motion.button>
+          </Motion.button>
         )}
-      </motion.div>
-    </motion.div>
+      </Motion.div>
+    </Motion.div>
   );
 };
 

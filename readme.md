@@ -51,7 +51,9 @@ kids-media/
 	- routes -> controllers -> services -> db modules
 	- central app setup and error middleware
 - Content moderation service calls Google Vision API.
-- In-memory data store for users/posts/violations.
+- MongoDB persistence with Mongoose models.
+- JWT authentication with bcrypt password hashing.
+- Zod request validation on auth/moderation routes.
 
 ## Tech Stack
 
@@ -70,6 +72,10 @@ kids-media/
 - axios
 - cors
 - dotenv
+- bcryptjs
+- jsonwebtoken
+- mongoose
+- zod
 
 ### External Service
 - Google Cloud Vision API (`SAFE_SEARCH_DETECTION`)
@@ -83,7 +89,7 @@ kids-media/
 ### Moderation and Feed
 - `POST /api/check`
 - `GET /api/posts`
-- `GET /api/user/status?userId=<id>`
+- `GET /api/user/status` (requires Bearer token)
 
 ## Setup
 
@@ -98,6 +104,10 @@ Create `backend/.env`:
 
 ```env
 GOOGLE_API_KEY=your_google_vision_api_key
+MONGO_URI=mongodb://127.0.0.1:27017
+MONGO_DB_NAME=teensmedia
+JWT_SECRET=replace_with_a_long_random_secret
+JWT_EXPIRES_IN=1h
 PORT=5000
 ```
 
@@ -126,20 +136,18 @@ Default URLs:
 - Easy to run and demo locally.
 
 ## Current Gaps Before Production
-1. Passwords are stored as plain text.
-2. No persistent database.
-3. No JWT/session security model.
-4. Hardcoded backend URLs in frontend.
-5. No validation/rate limiting hardening.
-6. No automated tests yet.
+1. Auth is now JWT + bcrypt + MongoDB, but refresh-token/session management is not implemented yet.
+2. Hardcoded fallback backend URL still exists (env-based override is supported).
+3. No validation/rate limiting hardening on every route yet.
+4. No automated tests yet.
+5. Posts currently store Base64 directly in MongoDB (works, but object storage is better at scale).
 
 ## Recommended Next Steps
-1. Add DB persistence.
-2. Add bcrypt password hashing.
-3. Add JWT auth.
-4. Add shared frontend API client and env-based base URL.
-5. Add validation middleware and rate limiting.
-6. Add test coverage and CI checks.
+1. Add refresh-token flow and secure cookie-based session handling.
+2. Add route-level rate limiting and auth brute-force protection.
+3. Move image storage from Base64 in MongoDB to object storage.
+4. Add comprehensive API and UI test coverage.
+5. Add CI checks for lint, tests, and security scanning.
 
 ## Detailed Analysis
 For a full architecture review, roadmap, and product feedback, see:

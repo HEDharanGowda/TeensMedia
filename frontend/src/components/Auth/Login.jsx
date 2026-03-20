@@ -2,7 +2,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import api from '../../services/api';
 import './Auth.css';
+
+const Motion = motion;
 
 const Login = ({ onLogin }) => {
   const [username, setUsername] = useState('');
@@ -26,7 +29,7 @@ const Login = ({ onLogin }) => {
       setCurrentBg((prev) => (prev + 1) % backgrounds.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [backgrounds.length]);
 
   const particles = useMemo(
     () =>
@@ -47,13 +50,12 @@ const Login = ({ onLogin }) => {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
+      const response = await api.post('/auth/login', {
+        username,
+        password,
       });
 
-      const data = await response.json();
+      const data = response.data;
       if (data.success) {
         onLogin(data);
         navigate('/');
@@ -61,19 +63,19 @@ const Login = ({ onLogin }) => {
         setError(data.message || 'Login failed');
       }
     } catch (err) {
-      setError('Network error. Please try again.');
+      setError(err.response?.data?.message || 'Network error. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <motion.div 
+    <Motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       className="auth-page"
     >
-      <motion.div
+      <Motion.div
         className="auth-background"
         style={{ backgroundImage: `url(${backgrounds[currentBg]})` }}
         key={currentBg}
@@ -85,7 +87,7 @@ const Login = ({ onLogin }) => {
       <div className="auth-overlay" />
 
       {particles.map((particle, i) => (
-        <motion.div
+        <Motion.div
           key={i}
           className="auth-particle"
           style={{
@@ -107,40 +109,40 @@ const Login = ({ onLogin }) => {
         />
       ))}
 
-      <motion.div 
+      <Motion.div 
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         className="auth-card"
       >
         <div className="auth-header">
-          <motion.h1 
+          <Motion.h1 
             className="auth-title"
             animate={{ y: [0, -5, 0] }}
             transition={{ duration: 2, repeat: Infinity }}
           >
             Welcome Back Champ! 
-          </motion.h1>
-          <motion.p 
+          </Motion.h1>
+          <Motion.p 
             className="auth-subtitle"
             animate={{ scale: [1, 1.02, 1] }}
             transition={{ duration: 3, repeat: Infinity }}
           >
             Ready to continue your adventure?
-          </motion.p>
+          </Motion.p>
         </div>
 
         {error && (
-          <motion.div 
+          <Motion.div 
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             className="auth-error"
           >
             ⚠️ {error}
-          </motion.div>
+          </Motion.div>
         )}
 
         <form onSubmit={handleSubmit} className="auth-form">
-          <motion.div whileHover={{ scale: 1.02 }}>
+          <Motion.div whileHover={{ scale: 1.02 }}>
             <input
               type="text"
               placeholder="🦸 Enter Username"
@@ -149,9 +151,9 @@ const Login = ({ onLogin }) => {
               className="auth-input auth-input--primary"
               required
             />
-          </motion.div>
+          </Motion.div>
 
-          <motion.div whileHover={{ scale: 1.02 }}>
+          <Motion.div whileHover={{ scale: 1.02 }}>
             <input
               type="password"
               placeholder="🔐 Enter Secret Code"
@@ -160,9 +162,9 @@ const Login = ({ onLogin }) => {
               className="auth-input auth-input--accent"
               required
             />
-          </motion.div>
+          </Motion.div>
 
-          <motion.button 
+          <Motion.button 
             type="submit" 
             disabled={isLoading}
             whileHover={{ scale: 1.05 }}
@@ -170,27 +172,27 @@ const Login = ({ onLogin }) => {
             className="auth-submit auth-submit--login"
           >
             {isLoading ? (
-              <motion.span
+              <Motion.span
                 animate={{ rotate: 360 }}
                 transition={{ duration: 1, repeat: Infinity }}
               >
                 🔒
-              </motion.span>
+              </Motion.span>
             ) : (
               <>
                 Continue Adventure!
-                <motion.span 
+                <Motion.span 
                   animate={{ scale: [1, 1.5, 1] }}
                   transition={{ repeat: Infinity, duration: 1.5 }}
                 >
                   ⚡
-                </motion.span>
+                </Motion.span>
               </>
             )}
-          </motion.button>
+          </Motion.button>
         </form>
 
-        <motion.p 
+        <Motion.p 
           className="auth-switch"
           whileHover={{ scale: 1.05 }}
         >
@@ -201,9 +203,9 @@ const Login = ({ onLogin }) => {
           >
             Join the adventure! 🎉
           </span>
-        </motion.p>
-      </motion.div>
-    </motion.div>
+        </Motion.p>
+      </Motion.div>
+    </Motion.div>
   );
 };
 

@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import axios from 'axios';
 import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
 import Feed from './components/Feed';
 import CreatePost from './components/CreatePost';
 import Navbar from './components/Navbar';
+import api, { getAuthHeaders } from './services/api';
 import './App.css';
 
 function AppWrapper() {
@@ -24,7 +24,7 @@ function App() {
   const handleLogin = (userData) => {
     setUser(userData);
     localStorage.setItem('instasafe_user', JSON.stringify(userData));
-    checkBanStatus(userData.userId);
+    checkBanStatus(userData.token);
   };
 
   const handleLogout = () => {
@@ -33,10 +33,10 @@ function App() {
     window.location.href = '/login'; 
   };
 
-  const checkBanStatus = async (userId) => {
+  const checkBanStatus = useCallback(async (token) => {
     try {
-      const response = await axios.get('http://localhost:5000/api/user/status', {
-        params: { userId }
+      const response = await api.get('/user/status', {
+        headers: getAuthHeaders(token),
       });
 
       if (response.data.banned) {
@@ -46,7 +46,7 @@ function App() {
     } catch (error) {
       console.error('Error checking ban status:', error);
     }
-  };
+  }, []);
 
   const handlePostSuccess = (status) => {
     if (status === 'BANNED') {
@@ -54,7 +54,7 @@ function App() {
       return;
     }
 
-    axios.get('http://localhost:5000/api/posts')
+    api.get('/posts')
       .then(res => setPosts(res.data))
       .catch(err => console.error('Error fetching posts:', err));
   };
@@ -63,10 +63,17 @@ function App() {
     const storedUser = localStorage.getItem('instasafe_user');
     if (storedUser) {
       const userData = JSON.parse(storedUser);
-      setUser(userData);
-      checkBanStatus(userData.userId);
 
-      axios.get('http://localhost:5000/api/posts')
+      if (!userData?.token) {
+        localStorage.removeItem('instasafe_user');
+        setLoading(false);
+        return;
+      }
+
+      setUser(userData);
+      checkBanStatus(userData.token);
+
+      api.get('/posts')
         .then(res => setPosts(res.data))
         .catch(err => console.error('Failed to fetch posts:', err));
     }
@@ -74,13 +81,13 @@ function App() {
     setLoading(false); // done checking localStorage
 
     const interval = setInterval(() => {
-      if (user?.userId) {
-        checkBanStatus(user.userId);
+      if (user?.token) {
+        checkBanStatus(user.token);
       }
     }, 300000);
 
     return () => clearInterval(interval);
-  }, [user?.userId]);
+  }, [checkBanStatus, user?.token]);
 
   // While checking user, show nothing (or loader)
   if (loading) {
@@ -107,7 +114,7 @@ function App() {
             path="/create" 
             element={
               <CreatePost 
-                userId={user.userId} 
+                token={user.token}
                 onPostSuccess={handlePostSuccess}
                 onBanDetected={handleLogout}
               />

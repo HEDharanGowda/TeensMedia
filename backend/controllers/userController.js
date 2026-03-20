@@ -1,22 +1,32 @@
-const store = require('../db/inMemoryStore');
+const User = require('../models/User');
 
-function parseUserId(value) {
-  const parsed = Number.parseInt(value, 10);
-  return Number.isNaN(parsed) ? null : parsed;
-}
+async function getUserStatus(req, res, next) {
+  try {
+    const authUserId = req.user?.userId;
 
-function getUserStatus(req, res) {
-  const numericUserId = parseUserId(req.query.userId);
+    if (!authUserId) {
+      return res.status(401).json({
+        status: 'ERROR',
+        message: 'Unauthorized',
+      });
+    }
 
-  if (!numericUserId) {
-    return res.status(400).json({
-      error: 'User ID required',
+    const user = await User.findById(authUserId);
+
+    if (!user) {
+      return res.status(404).json({
+        status: 'ERROR',
+        message: 'User not found',
+      });
+    }
+
+    return res.json({
+      banned: user.isBanned,
+      violations: user.violations,
     });
+  } catch (error) {
+    return next(error);
   }
-
-  return res.json({
-    banned: store.isUserBanned(numericUserId),
-  });
 }
 
 module.exports = {

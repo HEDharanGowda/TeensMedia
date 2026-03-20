@@ -4,32 +4,34 @@ import { FaHome, FaPlusCircle, FaSignOutAlt } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import './Navbar.css';
 
+const Motion = motion;
+
 const Navbar = ({ onLogout }) => {
   return (
-    <motion.nav
+    <Motion.nav
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       className="navbar"
     >
       <div className="navbar__inner">
-        <motion.div whileHover={{ scale: 1.05 }} className="navbar__brand">
+        <Motion.div whileHover={{ scale: 1.05 }} className="navbar__brand">
           TeenMedia
-        </motion.div>
+        </Motion.div>
 
         <div className="navbar__actions">
-          <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
+          <Motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
             <Link to="/" className="navbar__link" aria-label="Go to feed">
               <FaHome size={24} />
             </Link>
-          </motion.div>
+          </Motion.div>
 
-          <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
+          <Motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
             <Link to="/create" className="navbar__link" aria-label="Create a post">
               <FaPlusCircle size={24} />
             </Link>
-          </motion.div>
+          </Motion.div>
 
-          <motion.div 
+          <Motion.div 
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
             onClick={onLogout}
@@ -38,10 +40,10 @@ const Navbar = ({ onLogout }) => {
             aria-label="Sign out"
           >
             <FaSignOutAlt size={24} />
-          </motion.div>
+          </Motion.div>
         </div>
       </div>
-    </motion.nav>
+    </Motion.nav>
   );
 };
 

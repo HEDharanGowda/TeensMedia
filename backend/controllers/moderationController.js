@@ -1,4 +1,5 @@
-const store = require('../db/inMemoryStore');
+const User = require('../models/User');
+const Post = require('../models/Post');
 const { analyzeImageSafety } = require('../services/visionService');
 const {
   MAX_VIOLATIONS,
@@ -6,24 +7,28 @@ const {
   QUESTIONABLE_LEVEL,
 } = require('../config/moderation');
 
-function parseUserId(value) {
-  const parsed = Number.parseInt(value, 10);
-  return Number.isNaN(parsed) ? null : parsed;
-}
-
 async function checkContent(req, res, next) {
   try {
-    const { imageBase64, userId } = req.body;
-    const numericUserId = parseUserId(userId);
+    const { imageBase64, caption = '' } = req.body;
+    const authUserId = req.user?.userId;
 
-    if (!numericUserId || !imageBase64) {
+    if (!authUserId || !imageBase64) {
       return res.status(400).json({
         status: 'ERROR',
         message: 'Missing required fields',
       });
     }
 
-    if (store.isUserBanned(numericUserId)) {
+    const user = await User.findById(authUserId);
+
+    if (!user) {
+      return res.status(404).json({
+        status: 'ERROR',
+        message: 'User not found',
+      });
+    }
+
+    if (user.isBanned) {
       return res.status(403).json({
         status: 'BANNED',
         message: `Account disabled: ${MAX_VIOLATIONS}/${MAX_VIOLATIONS} violations`,
@@ -36,21 +41,25 @@ async function checkContent(req, res, next) {
     const isQuestionable = adult === QUESTIONABLE_LEVEL || racy === QUESTIONABLE_LEVEL;
 
     if (isExplicit) {
-      const violations = store.addViolation(numericUserId);
+      user.violations += 1;
 
-      if (violations >= MAX_VIOLATIONS) {
-        store.banUser(numericUserId);
+      if (user.violations >= MAX_VIOLATIONS) {
+        user.isBanned = true;
+        await user.save();
+
         return res.json({
           status: 'BANNED',
           message: `Account disabled (${MAX_VIOLATIONS}/${MAX_VIOLATIONS} violations)`,
-          violations,
+          violations: user.violations,
         });
       }
 
+      await user.save();
+
       return res.json({
         status: 'REJECTED',
-        message: `Post blocked (${violations}/${MAX_VIOLATIONS} violations)`,
-        violations,
+        message: `Post blocked (${user.violations}/${MAX_VIOLATIONS} violations)`,
+        violations: user.violations,
       });
     }
 
@@ -61,10 +70,10 @@ async function checkContent(req, res, next) {
       });
     }
 
-    store.savePost({
-      userId: numericUserId,
+    await Post.create({
+      userId: user._id,
       imageBase64,
-      timestamp: new Date().toISOString(),
+      caption,
     });
 
     return res.json({

@@ -44,15 +44,15 @@ Backend is now modular and layered:
 - controllers,
 - services,
 - config,
-- in-memory db module,
+- database connection/models module,
 - middleware.
 
 This is much cleaner than a single large server file and is ready for production-grade upgrades.
 
 ### Data Storage Model
-- In-memory arrays/maps are used for users, posts, and violations.
-- Data resets on server restart.
-- No persistent database yet.
+- MongoDB (via Mongoose) stores users and posts.
+- User moderation state (`isBanned`, `violations`) is persisted.
+- Data survives server restarts and is suitable for local Compass workflows.
 
 ## 4. Technology Stack
 
@@ -71,6 +71,10 @@ This is much cleaner than a single large server file and is ready for production
 - axios
 - cors
 - dotenv
+- bcryptjs
+- jsonwebtoken
+- mongoose
+- zod
 
 ### External API
 - Google Cloud Vision API (SAFE_SEARCH_DETECTION)
@@ -84,7 +88,7 @@ This is much cleaner than a single large server file and is ready for production
 ### Moderation and Feed
 - `POST /api/check`
 - `GET /api/posts`
-- `GET /api/user/status?userId=<id>`
+- `GET /api/user/status` (Bearer token)
 
 ## 6. Design and Code Quality Observations
 
@@ -95,25 +99,24 @@ This is much cleaner than a single large server file and is ready for production
 - Frontend has improved maintainability after CSS extraction.
 
 ### Current Risks / Gaps
-1. Security: passwords are plain text.
-2. No token/session auth model (localStorage identity only).
-3. No persistent DB.
+1. Access token auth is implemented, but refresh token/session rotation is not yet implemented.
+2. Token is stored in localStorage (acceptable for now, but secure-cookie strategy is stronger).
+3. No fine-grained role/permission model yet.
 4. API base URL is hardcoded in frontend.
-5. No request validation layer (schema validation).
+5. Request validation exists on auth/moderation routes, but not yet across all routes.
 6. No rate limiting and brute-force protection.
 7. No automated unit/integration tests.
-8. Mixed API client patterns (`fetch` + `axios`).
+8. Frontend API is mostly unified with axios client, but interceptors are not yet implemented.
 9. Static third-party image links for stories can be unreliable.
 
 ## 7. Recommended Improvement Roadmap
 
 ### Phase A: Production Foundation (High Priority)
-1. Add persistent DB (PostgreSQL preferred, MongoDB optional).
-2. Add password hashing (bcrypt).
-3. Add JWT auth with refresh token strategy (or secure session cookie approach).
-4. Introduce environment-based API config on frontend.
-5. Add request validation middleware (zod/joi/express-validator).
-6. Add rate limiting and security hardening headers.
+1. Add JWT refresh token strategy (or secure session cookie approach).
+2. Introduce environment-based API config for all frontend environments.
+3. Expand request validation coverage to every write endpoint.
+4. Add rate limiting and security hardening headers.
+5. Move image storage from Base64-in-DB to object storage.
 
 ### Phase B: Product Maturity (Medium Priority)
 1. Create moderation audit log and optional admin review queue.

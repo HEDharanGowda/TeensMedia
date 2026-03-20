@@ -1,6 +1,6 @@
 
 import { Link } from 'react-router-dom';
-import { FaHome, FaPlusCircle, FaSignOutAlt } from 'react-icons/fa';
+import { FaHome, FaPlusCircle, FaSignOutAlt, FaUser } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import './Navbar.css';
 
@@ -28,6 +28,12 @@ const Navbar = ({ onLogout }) => {
           <Motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
             <Link to="/create" className="navbar__link" aria-label="Create a post">
               <FaPlusCircle size={24} />
+            </Link>
+          </Motion.div>
+
+          <Motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
+            <Link to="/profile" className="navbar__link" aria-label="View profile">
+              <FaUser size={24} />
             </Link>
           </Motion.div>
 

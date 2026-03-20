@@ -7,6 +7,7 @@ const authRoutes = require('./routes/authRoutes');
 const moderationRoutes = require('./routes/moderationRoutes');
 const postRoutes = require('./routes/postRoutes');
 const userRoutes = require('./routes/userRoutes');
+const storyRoutes = require('./routes/storyRoutes');
 const { notFoundHandler, errorHandler } = require('./middlewares/errorHandler');
 
 const app = express();
@@ -18,6 +19,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api', moderationRoutes);
 app.use('/api', postRoutes);
 app.use('/api', userRoutes);
+app.use('/api', storyRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

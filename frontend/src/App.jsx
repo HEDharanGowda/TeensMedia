@@ -4,6 +4,7 @@ import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
 import Feed from './components/Feed';
 import CreatePost from './components/CreatePost';
+import Profile from './components/Profile';
 import Navbar from './components/Navbar';
 import api, { getAuthHeaders } from './services/api';
 import './App.css';
@@ -109,16 +110,34 @@ function App() {
       <Navbar onLogout={handleLogout} />
       <div className="content-container">
         <Routes>
-          <Route path="/" element={<Feed posts={posts} />} />
-          <Route 
-            path="/create" 
+          <Route path="/" element={<Feed posts={posts} token={user.token} currentUser={user} />} />
+          <Route
+            path="/create"
             element={
-              <CreatePost 
+              <CreatePost
                 token={user.token}
                 onPostSuccess={handlePostSuccess}
                 onBanDetected={handleLogout}
               />
-            } 
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <Profile
+                token={user.token}
+                currentUser={user}
+              />
+            }
+          />
+          <Route
+            path="/profile/:username"
+            element={
+              <Profile
+                token={user.token}
+                currentUser={user}
+              />
+            }
           />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FaCalendarAlt, FaImages, FaExclamationTriangle } from 'react-icons/fa';
+import { FaCalendarAlt, FaImages, FaExclamationTriangle, FaUserPlus, FaUserMinus } from 'react-icons/fa';
 import api, { getAuthHeaders } from '../services/api';
 import './Profile.css';
 
@@ -13,6 +13,10 @@ const Profile = ({ token, currentUser }) => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followLoading, setFollowLoading] = useState(false);
+  const [followersCount, setFollowersCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
 
   const isOwnProfile = !username || username === currentUser?.username;
 
@@ -34,6 +38,9 @@ const Profile = ({ token, currentUser }) => {
       });
 
       setProfile(response.data);
+      setFollowersCount(response.data.user.followersCount || 0);
+      setFollowingCount(response.data.user.followingCount || 0);
+      setIsFollowing(response.data.user.isFollowing || false);
     } catch (err) {
       if (err.response?.status === 404) {
         setError('User not found');
@@ -42,6 +49,45 @@ const Profile = ({ token, currentUser }) => {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleFollow = async () => {
+    if (!profile?.user?.userId || followLoading) return;
+
+    setFollowLoading(true);
+    try {
+      const response = await api.post(
+        `/users/${profile.user.userId}/follow`,
+        {},
+        { headers: getAuthHeaders(token) }
+      );
+
+      setIsFollowing(true);
+      setFollowersCount(response.data.followersCount);
+    } catch (err) {
+      console.error('Failed to follow:', err);
+    } finally {
+      setFollowLoading(false);
+    }
+  };
+
+  const handleUnfollow = async () => {
+    if (!profile?.user?.userId || followLoading) return;
+
+    setFollowLoading(true);
+    try {
+      const response = await api.delete(
+        `/users/${profile.user.userId}/follow`,
+        { headers: getAuthHeaders(token) }
+      );
+
+      setIsFollowing(false);
+      setFollowersCount(response.data.followersCount);
+    } catch (err) {
+      console.error('Failed to unfollow:', err);
+    } finally {
+      setFollowLoading(false);
     }
   };
 
@@ -105,10 +151,32 @@ const Profile = ({ token, currentUser }) => {
         <div className="profile-info">
           <div className="profile-info-top">
             <h1 className="profile-username">{profile.user.username}</h1>
-            {isOwnProfile && (
+            {isOwnProfile ? (
               <button className="profile-edit-button">
                 Edit profile
               </button>
+            ) : (
+              <Motion.button
+                className={`profile-follow-button ${isFollowing ? 'profile-follow-button--following' : ''}`}
+                onClick={isFollowing ? handleUnfollow : handleFollow}
+                disabled={followLoading}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                {followLoading ? (
+                  'Loading...'
+                ) : isFollowing ? (
+                  <>
+                    <FaUserMinus />
+                    <span>Unfollow</span>
+                  </>
+                ) : (
+                  <>
+                    <FaUserPlus />
+                    <span>Follow</span>
+                  </>
+                )}
+              </Motion.button>
             )}
           </div>
 
@@ -119,12 +187,12 @@ const Profile = ({ token, currentUser }) => {
             </div>
 
             <div className="profile-stat">
-              <span className="profile-stat-number">0</span>
+              <span className="profile-stat-number">{followersCount}</span>
               <span className="profile-stat-label">followers</span>
             </div>
 
             <div className="profile-stat">
-              <span className="profile-stat-number">0</span>
+              <span className="profile-stat-number">{followingCount}</span>
               <span className="profile-stat-label">following</span>
             </div>
           </div>

@@ -12,6 +12,7 @@ const AddStory = ({ token, onClose, onStoryCreated }) => {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  const [moderationStatus, setModerationStatus] = useState(null);
 
   const handleImageSelect = (e) => {
     const file = e.target.files?.[0];
@@ -31,6 +32,7 @@ const AddStory = ({ token, onClose, onStoryCreated }) => {
 
     setSelectedImage(file);
     setError(null);
+    setModerationStatus(null);
 
     // Create preview
     const reader = new FileReader();
@@ -45,6 +47,7 @@ const AddStory = ({ token, onClose, onStoryCreated }) => {
 
     setUploading(true);
     setError(null);
+    setModerationStatus(null);
 
     try {
       // Extract base64 data without the prefix
@@ -56,14 +59,39 @@ const AddStory = ({ token, onClose, onStoryCreated }) => {
         { headers: getAuthHeaders(token) }
       );
 
-      setSuccess(true);
-      setTimeout(() => {
-        onStoryCreated?.(response.data);
-        onClose();
-      }, 1000);
+      const { status, message, violations } = response.data;
+
+      switch (status) {
+        case 'APPROVED':
+          setSuccess(true);
+          setTimeout(() => {
+            onStoryCreated?.(response.data);
+            onClose();
+          }, 1000);
+          break;
+        case 'REJECTED':
+          setModerationStatus('rejected');
+          setError(message || `Story blocked due to inappropriate content (${violations}/5 violations)`);
+          break;
+        case 'FLAGGED':
+          setModerationStatus('flagged');
+          setError(message || 'Story flagged for review - content may not be appropriate');
+          break;
+        case 'BANNED':
+          setModerationStatus('banned');
+          setError(message || 'Your account has been banned due to repeated violations');
+          break;
+        default:
+          setSuccess(true);
+          setTimeout(() => {
+            onStoryCreated?.(response.data);
+            onClose();
+          }, 1000);
+      }
     } catch (err) {
       if (err.response?.data?.status === 'BANNED') {
-        setError('Your account has been banned');
+        setModerationStatus('banned');
+        setError(err.response?.data?.message || 'Your account has been banned');
       } else {
         setError(err.response?.data?.message || 'Failed to upload story');
       }
@@ -116,6 +144,8 @@ const AddStory = ({ token, onClose, onStoryCreated }) => {
                     onClick={() => {
                       setPreview(null);
                       setSelectedImage(null);
+                      setError(null);
+                      setModerationStatus(null);
                     }}
                     className="add-story-change"
                   >
@@ -127,11 +157,17 @@ const AddStory = ({ token, onClose, onStoryCreated }) => {
 
             {error && (
               <Motion.div
-                className="add-story-error"
+                className={`add-story-error ${moderationStatus ? `add-story-error--${moderationStatus}` : ''}`}
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
               >
                 {error}
+                {moderationStatus === 'rejected' && (
+                  <p className="add-story-error-hint">Please select a different image</p>
+                )}
+                {moderationStatus === 'flagged' && (
+                  <p className="add-story-error-hint">Consider choosing a more appropriate image</p>
+                )}
               </Motion.div>
             )}
 

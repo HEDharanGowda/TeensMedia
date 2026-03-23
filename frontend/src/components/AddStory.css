@@ -143,6 +143,29 @@
   text-align: center;
 }
 
+.add-story-error--rejected {
+  background: #ffebee;
+  border: 1px solid #ef5350;
+}
+
+.add-story-error--flagged {
+  background: #fff3e0;
+  color: #e65100;
+  border: 1px solid #ff9800;
+}
+
+.add-story-error--banned {
+  background: #fce4ec;
+  color: #880e4f;
+  border: 1px solid #e91e63;
+}
+
+.add-story-error-hint {
+  margin: 8px 0 0 0;
+  font-size: 12px;
+  opacity: 0.85;
+}
+
 .add-story-success {
   background: #e8f5e9;
   color: #2e7d32;

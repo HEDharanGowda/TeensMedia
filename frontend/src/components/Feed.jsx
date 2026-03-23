@@ -129,12 +129,6 @@ const Feed = ({ posts, token, currentUser }) => {
               </div>
 
               <Post post={post} />
-
-              {post.caption && (
-                <div className="feed-post-caption">
-                  {post.caption}
-                </div>
-              )}
             </article>
           ))
         ) : (

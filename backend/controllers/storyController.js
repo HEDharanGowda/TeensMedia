@@ -1,5 +1,11 @@
 const Story = require('../models/Story');
 const User = require('../models/User');
+const { analyzeImageSafety } = require('../services/visionService');
+const {
+  MAX_VIOLATIONS,
+  EXPLICIT_LEVEL,
+  QUESTIONABLE_LEVEL,
+} = require('../config/moderation');
 
 async function createStory(req, res, next) {
   try {
@@ -33,7 +39,43 @@ async function createStory(req, res, next) {
     if (user.isBanned) {
       return res.status(403).json({
         status: 'BANNED',
-        message: 'Your account has been banned',
+        message: `Account disabled: ${MAX_VIOLATIONS}/${MAX_VIOLATIONS} violations`,
+      });
+    }
+
+    // Run image through Google Vision SafeSearch moderation
+    const { adult, racy } = await analyzeImageSafety(imageBase64);
+
+    const isExplicit = adult === EXPLICIT_LEVEL || racy === EXPLICIT_LEVEL;
+    const isQuestionable = adult === QUESTIONABLE_LEVEL || racy === QUESTIONABLE_LEVEL;
+
+    if (isExplicit) {
+      user.violations += 1;
+
+      if (user.violations >= MAX_VIOLATIONS) {
+        user.isBanned = true;
+        await user.save();
+
+        return res.json({
+          status: 'BANNED',
+          message: `Account disabled (${MAX_VIOLATIONS}/${MAX_VIOLATIONS} violations)`,
+          violations: user.violations,
+        });
+      }
+
+      await user.save();
+
+      return res.json({
+        status: 'REJECTED',
+        message: `Story blocked (${user.violations}/${MAX_VIOLATIONS} violations)`,
+        violations: user.violations,
+      });
+    }
+
+    if (isQuestionable) {
+      return res.json({
+        status: 'FLAGGED',
+        message: 'Story flagged for review - content may not be appropriate',
       });
     }
 
@@ -47,7 +89,7 @@ async function createStory(req, res, next) {
     });
 
     return res.status(201).json({
-      status: 'SUCCESS',
+      status: 'APPROVED',
       message: 'Story created successfully',
       story: {
         id: story._id.toString(),

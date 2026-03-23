@@ -72,6 +72,8 @@ async function getUserProfile(req, res, next) {
         createdAt: user.createdAt,
         postCount: posts.length,
         violations: user.violations,
+        followersCount: user.followers?.length || 0,
+        followingCount: user.following?.length || 0,
       },
       posts: normalizedPosts,
     });
@@ -92,7 +94,10 @@ async function getUserProfileByUsername(req, res, next) {
       });
     }
 
-    const user = await User.findOne({ username });
+    const [user, currentUser] = await Promise.all([
+      User.findOne({ username }),
+      User.findById(authUserId),
+    ]);
 
     if (!user) {
       return res.status(404).json({
@@ -113,6 +118,7 @@ async function getUserProfileByUsername(req, res, next) {
     }));
 
     const isOwnProfile = user._id.toString() === authUserId;
+    const isFollowing = currentUser?.following?.includes(user._id) || false;
 
     return res.json({
       user: {
@@ -120,6 +126,9 @@ async function getUserProfileByUsername(req, res, next) {
         username: user.username,
         createdAt: user.createdAt,
         postCount: posts.length,
+        followersCount: user.followers?.length || 0,
+        followingCount: user.following?.length || 0,
+        isFollowing,
         ...(isOwnProfile && { violations: user.violations }),
       },
       posts: normalizedPosts,

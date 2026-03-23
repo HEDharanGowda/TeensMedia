@@ -138,8 +138,43 @@ async function getUserProfileByUsername(req, res, next) {
   }
 }
 
+async function searchUsers(req, res, next) {
+  try {
+    const authUserId = req.user?.userId;
+    const { q } = req.query;
+
+    if (!authUserId) {
+      return res.status(401).json({
+        status: 'ERROR',
+        message: 'Unauthorized',
+      });
+    }
+
+    if (!q || q.trim().length < 2) {
+      return res.json([]);
+    }
+
+    const users = await User.find({
+      username: { $regex: q.trim(), $options: 'i' },
+      _id: { $ne: authUserId },
+    })
+      .limit(10)
+      .select('username _id');
+
+    const results = users.map((user) => ({
+      userId: user._id.toString(),
+      username: user.username,
+    }));
+
+    return res.json(results);
+  } catch (error) {
+    return next(error);
+  }
+}
+
 module.exports = {
   getUserStatus,
   getUserProfile,
   getUserProfileByUsername,
+  searchUsers,
 };

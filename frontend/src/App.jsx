@@ -5,6 +5,8 @@ import Register from './components/Auth/Register';
 import Feed from './components/Feed';
 import CreatePost from './components/CreatePost';
 import Profile from './components/Profile';
+import Messages from './components/Messages';
+import ChatView from './components/ChatView';
 import Navbar from './components/Navbar';
 import api, { getAuthHeaders } from './services/api';
 import './App.css';
@@ -118,6 +120,24 @@ function App() {
                 token={user.token}
                 onPostSuccess={handlePostSuccess}
                 onBanDetected={handleLogout}
+              />
+            }
+          />
+          <Route
+            path="/messages"
+            element={
+              <Messages
+                token={user.token}
+                currentUser={user}
+              />
+            }
+          />
+          <Route
+            path="/messages/:conversationId"
+            element={
+              <ChatView
+                token={user.token}
+                currentUser={user}
               />
             }
           />

@@ -18,8 +18,10 @@ const Feed = ({ posts, token, currentUser }) => {
   const [viewingStoryIndex, setViewingStoryIndex] = useState(0);
 
   useEffect(() => {
+    // Clear stories when user changes to avoid showing stale data
+    setStories([]);
     fetchStories();
-  }, []);
+  }, [currentUser?.username]);
 
   const fetchStories = async () => {
     try {
@@ -52,6 +54,7 @@ const Feed = ({ posts, token, currentUser }) => {
       <Motion.div className="stories-container">
         {/* Current user's story / Add story */}
         <Motion.div
+          key={`current-user-${currentUser?.username || 'guest'}`}
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.97 }}
           className="story-item"
@@ -78,13 +81,13 @@ const Feed = ({ posts, token, currentUser }) => {
         {/* Other users' stories */}
         {stories
           .filter(story => story.username !== currentUser?.username)
-          .map((userStory, index) => (
+          .map((userStory) => (
             <Motion.div
               key={userStory.userId}
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               className="story-item"
-              onClick={() => handleStoryClick(userStory, index + 1)}
+              onClick={() => handleStoryClick(userStory, stories.findIndex(s => s.userId === userStory.userId))}
             >
               <div className="story-ring story-ring--active">
                 <div className="story-ring__inner">

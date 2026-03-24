@@ -11,7 +11,7 @@ body {
 
 .content-container {
   padding-top: 54px;
-  padding-bottom: 50px;
+  padding-bottom: 96px; /* leave room for taller bottom nav */
   min-height: 100vh;
 }
 

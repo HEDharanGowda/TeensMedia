@@ -11,9 +11,12 @@ import {
   FaSignOutAlt,
   FaComment,
   FaTh,
-  FaCamera
+  FaCamera,
+  FaPlus
 } from 'react-icons/fa';
 import api, { getAuthHeaders } from '../services/api';
+import AddStory from './AddStory';
+import StoryViewer from './StoryViewer';
 import './Profile.css';
 
 const Motion = motion;
@@ -30,6 +33,10 @@ const Profile = ({ token, currentUser, onLogout, onProfilePictureChange }) => {
   const [followingCount, setFollowingCount] = useState(0);
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [avatarError, setAvatarError] = useState('');
+  const [userStories, setUserStories] = useState([]);
+  const [showAddStory, setShowAddStory] = useState(false);
+  const [viewingStory, setViewingStory] = useState(null);
+  const [viewingStoryIndex, setViewingStoryIndex] = useState(0);
   const fileInputRef = useRef(null);
 
   const isOwnProfile = !username || username === currentUser?.username;
@@ -37,6 +44,12 @@ const Profile = ({ token, currentUser, onLogout, onProfilePictureChange }) => {
   useEffect(() => {
     fetchProfile();
   }, [username]);
+
+  useEffect(() => {
+    if (isOwnProfile && currentUser?.username) {
+      fetchOwnStories();
+    }
+  }, [isOwnProfile, currentUser?.username]);
 
   const resolveAvatarSrc = (value) => {
     if (!value) return null;
@@ -69,6 +82,35 @@ const Profile = ({ token, currentUser, onLogout, onProfilePictureChange }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchOwnStories = async () => {
+    try {
+      const response = await api.get('/stories');
+      const mine = response.data.filter((story) => story.username === currentUser?.username);
+      setUserStories(mine);
+    } catch (err) {
+      console.error('Failed to fetch own stories:', err);
+    }
+  };
+
+  const handleOpenOwnStories = () => {
+    if (!userStories.length) {
+      setShowAddStory(true);
+      return;
+    }
+
+    setViewingStory(userStories[0]);
+    setViewingStoryIndex(0);
+  };
+
+  const handleCloseStoryViewer = () => {
+    setViewingStory(null);
+    setViewingStoryIndex(0);
+  };
+
+  const handleStoryCreated = async () => {
+    await fetchOwnStories();
   };
 
   const handleFollow = async () => {
@@ -296,6 +338,47 @@ const Profile = ({ token, currentUser, onLogout, onProfilePictureChange }) => {
           </div>
           <h2 className="profile-display-name">{profile.user.username}</h2>
           {avatarError && <p className="profile-avatar-error">{avatarError}</p>}
+
+          {isOwnProfile && (
+            <div className="profile-story-shortcut">
+              <div className="profile-story-circle">
+                <button
+                  type="button"
+                  className="profile-story-main"
+                  onClick={handleOpenOwnStories}
+                  aria-label="Open your stories"
+                >
+                  <div className={userStories.length ? 'story-ring story-ring--active' : 'story-ring'}>
+                    <div className="story-ring__inner">
+                      <div className="story-image story-image-placeholder">
+                        {resolveAvatarSrc(profile.user.profilePicture) ? (
+                          <img
+                            src={resolveAvatarSrc(profile.user.profilePicture)}
+                            alt="Your avatar"
+                            className="story-avatar-image"
+                          />
+                        ) : (
+                          '👤'
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  className="profile-story-add-badge"
+                  onClick={() => setShowAddStory(true)}
+                  aria-label="Add another story"
+                >
+                  <FaPlus size={12} />
+                </button>
+              </div>
+
+              <p className="profile-story-caption">
+                {userStories.length > 0 ? 'Your Story' : 'Add Your Story'}
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Stats */}
@@ -407,6 +490,26 @@ const Profile = ({ token, currentUser, onLogout, onProfilePictureChange }) => {
           </Motion.div>
         )}
       </div>
+
+      {showAddStory && (
+        <AddStory
+          token={token}
+          onClose={() => setShowAddStory(false)}
+          onStoryCreated={handleStoryCreated}
+        />
+      )}
+
+      {viewingStory && (
+        <StoryViewer
+          userStory={viewingStory}
+          onClose={handleCloseStoryViewer}
+          allStories={userStories}
+          currentIndex={viewingStoryIndex}
+          token={token}
+          currentUserId={currentUser?.userId}
+          onStoriesChanged={fetchOwnStories}
+        />
+      )}
     </Motion.div>
   );
 };

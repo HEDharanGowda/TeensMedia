@@ -53,6 +53,7 @@ const Feed = ({ posts, token, currentUser }) => {
 
   // Check if current user has a story
   const currentUserStory = stories.find(s => s.username === currentUser?.username);
+  const currentUserAvatar = resolveAvatarSrc(currentUser?.profilePicture);
 
   return (
     <div className="feed-page">
@@ -71,25 +72,36 @@ const Feed = ({ posts, token, currentUser }) => {
             }
           }}
         >
-          <div className={currentUserStory ? 'story-ring story-ring--active' : 'story-ring'}>
-            <div className="story-ring__inner">
-              <div className="story-image story-image-placeholder">
-                {currentUserStory && resolveAvatarSrc(currentUser?.profilePicture) ? (
-                  <img
-                    src={resolveAvatarSrc(currentUser?.profilePicture)}
-                    alt="Your avatar"
-                    className="story-avatar-image"
-                  />
-                ) : currentUserStory ? (
-                  '👤'
-                ) : (
-                  <FaPlus size={24} />
-                )}
+          <div className="story-item-avatar-wrap">
+            <div className={currentUserStory ? 'story-ring story-ring--active' : 'story-ring'}>
+              <div className="story-ring__inner">
+                <div className="story-image story-image-placeholder">
+                  {currentUserAvatar ? (
+                    <img
+                      src={currentUserAvatar}
+                      alt="Your avatar"
+                      className="story-avatar-image"
+                    />
+                  ) : (
+                    '👤'
+                  )}
+                </div>
               </div>
             </div>
+            <button
+              type="button"
+              className="story-add-badge"
+              aria-label="Add another story"
+              onClick={(event) => {
+                event.stopPropagation();
+                setShowAddStory(true);
+              }}
+            >
+              <FaPlus size={12} />
+            </button>
           </div>
           <span className="story-username">
-            {currentUserStory ? 'Your story' : 'Add story'}
+            Your story
           </span>
         </Motion.div>
 
@@ -133,7 +145,15 @@ const Feed = ({ posts, token, currentUser }) => {
               <div className="feed-post-header">
                 <div className="feed-post-user">
                   <div className="feed-post-avatar">
-                    <span className="feed-post-avatar-icon">👤</span>
+                    {resolveAvatarSrc(post.profilePicture) ? (
+                      <img
+                        src={resolveAvatarSrc(post.profilePicture)}
+                        alt={`${post.username || 'User'} avatar`}
+                        className="feed-post-avatar-image"
+                      />
+                    ) : (
+                      <span className="feed-post-avatar-icon">👤</span>
+                    )}
                   </div>
                   {post.username ? (
                     <Link
@@ -189,6 +209,9 @@ const Feed = ({ posts, token, currentUser }) => {
           onClose={handleCloseViewer}
           allStories={stories}
           currentIndex={viewingStoryIndex}
+          token={token}
+          currentUserId={currentUser?.userId}
+          onStoriesChanged={fetchStories}
         />
       )}
     </div>

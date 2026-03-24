@@ -5,14 +5,9 @@ import {
   FaPlusSquare,
   FaRegPlusSquare,
   FaHeart,
-  FaRegHeart,
-  FaUser,
-  FaRegUser
+  FaRegHeart
 } from 'react-icons/fa';
-import { motion } from 'framer-motion';
 import './BottomNav.css';
-
-const Motion = motion;
 
 const resolveAvatarSrc = (value) => {
   if (!value) return null;
@@ -23,11 +18,7 @@ const BottomNav = ({ currentUser }) => {
   const avatarSrc = resolveAvatarSrc(currentUser?.profilePicture);
 
   return (
-    <Motion.nav
-      initial={{ y: 100 }}
-      animate={{ y: 0 }}
-      className="bottom-nav"
-    >
+    <nav className="bottom-nav" aria-label="Bottom navigation">
       <div className="bottom-nav__inner">
         <NavLink
           to="/"
@@ -35,9 +26,9 @@ const BottomNav = ({ currentUser }) => {
           end
         >
           {({ isActive }) => (
-            <Motion.div whileTap={{ scale: 0.9 }}>
+            <span className="bottom-nav__icon-wrap">
               <FaHome size={24} />
-            </Motion.div>
+            </span>
           )}
         </NavLink>
 
@@ -45,9 +36,9 @@ const BottomNav = ({ currentUser }) => {
           to="/search"
           className={({ isActive }) => `bottom-nav__link ${isActive ? 'bottom-nav__link--active' : ''}`}
         >
-          <Motion.div whileTap={{ scale: 0.9 }}>
+          <span className="bottom-nav__icon-wrap">
             <FaSearch size={22} />
-          </Motion.div>
+          </span>
         </NavLink>
 
         <NavLink
@@ -55,9 +46,9 @@ const BottomNav = ({ currentUser }) => {
           className={({ isActive }) => `bottom-nav__link ${isActive ? 'bottom-nav__link--active' : ''}`}
         >
           {({ isActive }) => (
-            <Motion.div whileTap={{ scale: 0.9 }}>
+            <span className="bottom-nav__icon-wrap">
               {isActive ? <FaPlusSquare size={24} /> : <FaRegPlusSquare size={24} />}
-            </Motion.div>
+            </span>
           )}
         </NavLink>
 
@@ -66,9 +57,9 @@ const BottomNav = ({ currentUser }) => {
           className={({ isActive }) => `bottom-nav__link ${isActive ? 'bottom-nav__link--active' : ''}`}
         >
           {({ isActive }) => (
-            <Motion.div whileTap={{ scale: 0.9 }}>
+            <span className="bottom-nav__icon-wrap">
               {isActive ? <FaHeart size={24} /> : <FaRegHeart size={24} />}
-            </Motion.div>
+            </span>
           )}
         </NavLink>
 
@@ -77,17 +68,17 @@ const BottomNav = ({ currentUser }) => {
           className={({ isActive }) => `bottom-nav__link ${isActive ? 'bottom-nav__link--active' : ''}`}
         >
           {({ isActive }) => (
-            <Motion.div whileTap={{ scale: 0.9 }} className={`bottom-nav__avatar ${isActive ? 'bottom-nav__avatar--active' : ''}`}>
+            <span className={`bottom-nav__avatar ${isActive ? 'bottom-nav__avatar--active' : ''}`}>
               {avatarSrc ? (
                 <img src={avatarSrc} alt="Profile" className="bottom-nav__avatar-image" />
               ) : (
                 <span>👤</span>
               )}
-            </Motion.div>
+            </span>
           )}
         </NavLink>
       </div>
-    </Motion.nav>
+    </nav>
   );
 };
 

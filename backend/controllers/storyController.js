@@ -112,7 +112,7 @@ async function getStories(req, res, next) {
     const stories = await Story.find({
       expiresAt: { $gt: now },
     })
-      .populate('userId', 'username')
+      .populate('userId', 'username profilePicture')
       .sort({ createdAt: -1 })
       .select({ _id: 1, userId: 1, imageBase64: 1, createdAt: 1, expiresAt: 1 });
 
@@ -125,6 +125,7 @@ async function getStories(req, res, next) {
         userStoriesMap.set(userId, {
           userId,
           username: story.userId.username,
+          profilePicture: story.userId.profilePicture || null,
           stories: [],
         });
       }
@@ -182,8 +183,49 @@ async function getUserStories(req, res, next) {
   }
 }
 
+async function deleteStory(req, res, next) {
+  try {
+    const authUserId = req.user?.userId;
+    const { storyId } = req.params;
+
+    if (!authUserId) {
+      return res.status(401).json({
+        status: 'ERROR',
+        message: 'Unauthorized',
+      });
+    }
+
+    const story = await Story.findById(storyId);
+
+    if (!story) {
+      return res.status(404).json({
+        status: 'ERROR',
+        message: 'Story not found',
+      });
+    }
+
+    if (story.userId.toString() !== authUserId) {
+      return res.status(403).json({
+        status: 'ERROR',
+        message: 'You can only delete your own stories',
+      });
+    }
+
+    await Story.deleteOne({ _id: storyId });
+
+    return res.json({
+      status: 'OK',
+      message: 'Story deleted successfully',
+      storyId,
+    });
+  } catch (error) {
+    return next(error);
+  }
+}
+
 module.exports = {
   createStory,
   getStories,
   getUserStories,
+  deleteStory,
 };

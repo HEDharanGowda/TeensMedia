@@ -1,23 +1,25 @@
 .bottom-nav {
   width: 100%;
   background: #fff;
-  height: 50px;
+  height: 64px;
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 1000;
+  z-index: 3000;
   border-top: 1px solid #dbdbdb;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 .bottom-nav__inner {
   display: flex;
   justify-content: space-around;
   align-items: center;
-  height: 50px;
+  height: 64px;
   max-width: 600px;
   margin: 0 auto;
-  padding: 0 8px;
+  padding: 0 12px;
 }
 
 .bottom-nav__link {
@@ -26,6 +28,16 @@
   justify-content: center;
   flex: 1;
   height: 100%;
+  color: #262626;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.bottom-nav__icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
 
 .bottom-nav__avatar-image {
   width: 100%;
@@ -33,10 +45,6 @@
   object-fit: cover;
   display: block;
   border-radius: 50%;
-}
-  color: #262626;
-  text-decoration: none;
-  transition: opacity 0.15s;
 }
 
 .bottom-nav__link:hover {

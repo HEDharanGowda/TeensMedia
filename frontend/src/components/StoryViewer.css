@@ -119,6 +119,36 @@
   transform: scale(1.1);
 }
 
+.story-viewer-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.story-viewer-delete {
+  background: rgba(237, 73, 86, 0.9);
+  border: none;
+  color: #fff;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.story-viewer-delete:hover:not(:disabled) {
+  background: #ed4956;
+  transform: scale(1.06);
+}
+
+.story-viewer-delete:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* Content */
 .story-viewer-content {
   flex: 1;

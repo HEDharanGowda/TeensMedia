@@ -1,14 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaTimes, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { FaTimes, FaChevronLeft, FaChevronRight, FaTrash } from 'react-icons/fa';
+import api, { getAuthHeaders } from '../services/api';
 import './StoryViewer.css';
 
 const Motion = motion;
 
-const StoryViewer = ({ userStory, onClose, allStories, currentIndex }) => {
+const StoryViewer = ({
+  userStory,
+  onClose,
+  allStories,
+  currentIndex,
+  token,
+  currentUserId,
+  onStoriesChanged,
+}) => {
   const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
   const [currentUserIndex, setCurrentUserIndex] = useState(currentIndex || 0);
   const [progress, setProgress] = useState(0);
+  const [deleting, setDeleting] = useState(false);
 
   const resolveAvatarSrc = (value) => {
     if (!value) return null;
@@ -19,6 +29,7 @@ const StoryViewer = ({ userStory, onClose, allStories, currentIndex }) => {
   const stories = currentUserStory?.stories || userStory?.stories || [];
   const username = currentUserStory?.username || userStory?.username;
   const avatarSrc = resolveAvatarSrc(currentUserStory?.profilePicture || userStory?.profilePicture);
+  const isOwnStoryGroup = currentUserStory?.userId === currentUserId;
 
   useEffect(() => {
     setCurrentStoryIndex(0);
@@ -86,6 +97,44 @@ const StoryViewer = ({ userStory, onClose, allStories, currentIndex }) => {
 
   const currentStory = stories[currentStoryIndex];
 
+  const handleDeleteStory = async () => {
+    if (!token || !currentStory?.id || deleting) return;
+
+    const confirmed = window.confirm('Delete this story now?');
+    if (!confirmed) return;
+
+    setDeleting(true);
+    try {
+      await api.delete(`/stories/${currentStory.id}`, {
+        headers: getAuthHeaders(token),
+      });
+
+      await onStoriesChanged?.();
+
+      const hasMoreStoriesInUser = stories.length > 1;
+      const hasMoreUsers = currentUserIndex < allStories.length - 1;
+
+      if (hasMoreStoriesInUser) {
+        if (currentStoryIndex >= stories.length - 1) {
+          setCurrentStoryIndex(stories.length - 2);
+        }
+        return;
+      }
+
+      if (hasMoreUsers) {
+        setCurrentUserIndex(currentUserIndex + 1);
+        setCurrentStoryIndex(0);
+      } else {
+        onClose();
+      }
+    } catch (error) {
+      console.error('Failed to delete story:', error);
+      window.alert(error?.response?.data?.message || 'Failed to delete story');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   return (
     <AnimatePresence>
       <Motion.div
@@ -136,9 +185,21 @@ const StoryViewer = ({ userStory, onClose, allStories, currentIndex }) => {
                 {formatTimeAgo(currentStory.createdAt)}
               </span>
             </div>
-            <button onClick={onClose} className="story-viewer-close">
-              <FaTimes />
-            </button>
+            <div className="story-viewer-header-actions">
+              {isOwnStoryGroup && (
+                <button
+                  onClick={handleDeleteStory}
+                  className="story-viewer-delete"
+                  disabled={deleting}
+                  aria-label="Delete story"
+                >
+                  <FaTrash />
+                </button>
+              )}
+              <button onClick={onClose} className="story-viewer-close" aria-label="Close story viewer">
+                <FaTimes />
+              </button>
+            </div>
           </div>
 
           {/* Story content */}

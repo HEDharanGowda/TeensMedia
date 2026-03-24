@@ -185,7 +185,7 @@ function App() {
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </div>
-      {!isChatView && <BottomNav currentUser={user} />}
+      <BottomNav currentUser={user} />
     </>
   );
 }

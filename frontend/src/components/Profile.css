@@ -201,6 +201,99 @@
   margin: 0;
 }
 
+.profile-story-shortcut {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.profile-story-circle {
+  position: relative;
+}
+
+.profile-story-main {
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+.profile-story-caption {
+  margin: 0;
+  font-size: 13px;
+  color: #262626;
+  font-weight: 500;
+}
+
+.profile-story-add-badge {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  background: #0095f6;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-story-add-badge:hover {
+  background: #1877f2;
+}
+
+.story-ring {
+  background: #e0e0e0;
+  padding: 3px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.story-ring--active {
+  background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+}
+
+.story-ring__inner {
+  background: #fff;
+  padding: 2px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.story-image {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+}
+
+.story-image-placeholder {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: #efefef;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  color: #8e8e8e;
+}
+
+.story-avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+
 /* Stats Row */
 .profile-stats-row {
   display: flex;

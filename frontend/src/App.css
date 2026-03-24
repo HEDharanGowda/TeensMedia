@@ -10,7 +10,15 @@ body {
 }
 
 .content-container {
-  /* No padding - let individual pages control their own spacing */
+  padding-top: 54px;
+  padding-bottom: 50px;
+  min-height: 100vh;
+}
+
+.content-container--chat,
+.content-container--no-header {
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 /* Auth */

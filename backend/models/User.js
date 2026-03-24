@@ -14,6 +14,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    profilePicture: {
+      type: String,
+      default: null,
+    },
     isBanned: {
       type: Boolean,
       default: false,

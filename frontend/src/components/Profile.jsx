@@ -1,7 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FaCalendarAlt, FaImages, FaExclamationTriangle, FaUserPlus, FaUserMinus, FaSignOutAlt } from 'react-icons/fa';
+import {
+  FaArrowLeft,
+  FaEllipsisV,
+  FaImages,
+  FaExclamationTriangle,
+  FaUserPlus,
+  FaUserMinus,
+  FaSignOutAlt,
+  FaComment,
+  FaTh
+} from 'react-icons/fa';
 import api, { getAuthHeaders } from '../services/api';
 import './Profile.css';
 
@@ -91,6 +101,11 @@ const Profile = ({ token, currentUser, onLogout }) => {
     }
   };
 
+  const handleMessageClick = () => {
+    // Navigate to messages with this user
+    navigate('/messages');
+  };
+
   const handlePostClick = (post) => {
     // Future enhancement: open post in modal
     console.log('Post clicked:', post);
@@ -144,109 +159,99 @@ const Profile = ({ token, currentUser, onLogout }) => {
       className="profile-page"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
+      transition={{ duration: 0.3 }}
     >
-      <Motion.div
-        className="profile-header"
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.2 }}
-      >
-        <div className="profile-avatar">
-          <span className="profile-avatar-icon">👤</span>
+      {/* Top Navigation Bar */}
+      <div className="profile-nav">
+        <button onClick={() => navigate(-1)} className="profile-nav-back">
+          <FaArrowLeft />
+        </button>
+        <span className="profile-nav-username">{profile.user.username}</span>
+        <button className="profile-nav-menu">
+          <FaEllipsisV />
+        </button>
+      </div>
+
+      {/* Profile Info Section */}
+      <div className="profile-content">
+        {/* Avatar */}
+        <div className="profile-avatar-section">
+          <div className="profile-avatar-wrapper">
+            <div className="profile-avatar">
+              <span className="profile-avatar-icon">👤</span>
+            </div>
+          </div>
+          <h2 className="profile-display-name">{profile.user.username}</h2>
         </div>
 
-        <div className="profile-info">
-          <div className="profile-info-top">
-            <h1 className="profile-username">{profile.user.username}</h1>
-            {isOwnProfile ? (
-              <div className="profile-action-buttons">
-                <button className="profile-edit-button">
-                  Edit profile
-                </button>
-                <Motion.button
-                  className="profile-logout-button"
-                  onClick={onLogout}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <FaSignOutAlt />
-                  <span>Logout</span>
-                </Motion.button>
-              </div>
-            ) : (
-              <Motion.button
-                className={`profile-follow-button ${isFollowing ? 'profile-follow-button--following' : ''}`}
+        {/* Stats */}
+        <div className="profile-stats-row">
+          <div className="profile-stat-item">
+            <span className="profile-stat-number">{profile.user.postCount}</span>
+            <span className="profile-stat-label">Posts</span>
+          </div>
+          <div className="profile-stat-item">
+            <span className="profile-stat-number">{followersCount}</span>
+            <span className="profile-stat-label">Followers</span>
+          </div>
+          <div className="profile-stat-item">
+            <span className="profile-stat-number">{followingCount}</span>
+            <span className="profile-stat-label">Following</span>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="profile-actions-row">
+          {isOwnProfile ? (
+            <>
+              <button className="profile-action-btn profile-action-btn--primary">
+                Edit Profile
+              </button>
+              <button className="profile-action-btn" onClick={onLogout}>
+                <FaSignOutAlt />
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                className={`profile-action-btn ${
+                  isFollowing ? 'profile-action-btn--secondary' : 'profile-action-btn--primary'
+                }`}
                 onClick={isFollowing ? handleUnfollow : handleFollow}
                 disabled={followLoading}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
               >
-                {followLoading ? (
-                  'Loading...'
-                ) : isFollowing ? (
-                  <>
-                    <FaUserMinus />
-                    <span>Unfollow</span>
-                  </>
-                ) : (
-                  <>
-                    <FaUserPlus />
-                    <span>Follow</span>
-                  </>
-                )}
-              </Motion.button>
-            )}
-          </div>
-
-          <div className="profile-stats">
-            <div className="profile-stat">
-              <span className="profile-stat-number">{profile.user.postCount}</span>
-              <span className="profile-stat-label">posts</span>
-            </div>
-
-            <div className="profile-stat">
-              <span className="profile-stat-number">{followersCount}</span>
-              <span className="profile-stat-label">followers</span>
-            </div>
-
-            <div className="profile-stat">
-              <span className="profile-stat-number">{followingCount}</span>
-              <span className="profile-stat-label">following</span>
-            </div>
-          </div>
-
-          <div className="profile-meta">
-            <div className="profile-join-date">
-              <FaCalendarAlt />
-              <span>
-                Joined {new Date(profile.user.createdAt).toLocaleDateString('en-US', {
-                  month: 'short',
-                  year: 'numeric'
-                })}
-              </span>
-            </div>
-
-            {isOwnProfile && profile.user.violations !== undefined && profile.user.violations > 0 && (
-              <div className="profile-violations">
-                <FaExclamationTriangle />
-                <span>
-                  {profile.user.violations} violation{profile.user.violations !== 1 ? 's' : ''}
-                </span>
-              </div>
-            )}
-          </div>
+                {followLoading ? 'Loading...' : isFollowing ? 'Following' : 'Follow'}
+              </button>
+              <button className="profile-action-btn profile-action-btn--secondary" onClick={handleMessageClick}>
+                Message
+              </button>
+              <button className="profile-action-btn">
+                <FaUserPlus />
+              </button>
+            </>
+          )}
         </div>
-      </Motion.div>
 
-      <div className="profile-divider"></div>
+        {/* Violations Badge (if any) */}
+        {isOwnProfile && profile.user.violations !== undefined && profile.user.violations > 0 && (
+          <div className="profile-violations-badge">
+            <FaExclamationTriangle />
+            <span>
+              {profile.user.violations} violation{profile.user.violations !== 1 ? 's' : ''}
+            </span>
+          </div>
+        )}
+      </div>
 
+      {/* Posts Grid Header */}
+      <div className="profile-tabs">
+        <button className="profile-tab profile-tab--active">
+          <FaTh />
+        </button>
+      </div>
+
+      {/* Posts Grid */}
       <div className="profile-posts-section">
-        <div className="profile-posts-header">
-          <FaImages />
-          <span>POSTS</span>
-        </div>
-
         {profile.posts.length > 0 ? (
           <div className="profile-posts-grid">
             {profile.posts.map((post, index) => (
@@ -255,7 +260,7 @@ const Profile = ({ token, currentUser, onLogout }) => {
                 className="profile-post-item"
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: index * 0.05, duration: 0.3 }}
+                transition={{ delay: index * 0.03, duration: 0.2 }}
                 whileHover={{ scale: 1.02 }}
                 onClick={() => handlePostClick(post)}
               >
@@ -264,11 +269,6 @@ const Profile = ({ token, currentUser, onLogout }) => {
                   alt={post.caption || 'Post'}
                   className="profile-post-image"
                 />
-                {post.caption && (
-                  <div className="profile-post-overlay">
-                    <p className="profile-post-caption">{post.caption}</p>
-                  </div>
-                )}
               </Motion.div>
             ))}
           </div>

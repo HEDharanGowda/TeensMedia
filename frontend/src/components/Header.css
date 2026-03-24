@@ -1,0 +1,54 @@
+.header {
+  width: 100%;
+  background: #fff;
+  height: 54px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  border-bottom: 1px solid #dbdbdb;
+}
+
+.header__inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 54px;
+  padding: 0 16px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.header__brand {
+  font-family: 'Billabong', cursive, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 1.75rem;
+  font-weight: 500;
+  line-height: 1;
+  color: #262626;
+  cursor: default;
+  user-select: none;
+  letter-spacing: 0.5px;
+}
+
+.header__actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.header__icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #262626;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.header__icon-btn:hover {
+  opacity: 0.7;
+}

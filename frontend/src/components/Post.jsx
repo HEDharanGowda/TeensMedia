@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { FaHeart, FaRegHeart, FaComment, FaPaperPlane, FaBookmark, FaTimes } from 'react-icons/fa';
+import { FaHeart, FaRegHeart, FaComment, FaPaperPlane, FaBookmark, FaEllipsisV } from 'react-icons/fa';
 import api, { getAuthHeaders } from '../services/api';
 import './Post.css';
 
@@ -15,6 +15,26 @@ const Post = ({ post, token, currentUser }) => {
   const [newComment, setNewComment] = useState('');
   const [loadingComments, setLoadingComments] = useState(false);
   const [submittingComment, setSubmittingComment] = useState(false);
+  const [openMenuId, setOpenMenuId] = useState(null);
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
+  const menuRef = useRef(null);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setOpenMenuId(null);
+      }
+    };
+
+    if (openMenuId) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [openMenuId]);
 
   const handleLike = async () => {
     if (!token) return;
@@ -51,13 +71,14 @@ const Post = ({ post, token, currentUser }) => {
     }
   };
 
-  const handleShowComments = () => {
-    setShowComments(true);
-    fetchComments();
-  };
-
-  const handleCloseComments = () => {
-    setShowComments(false);
+  const handleToggleComments = () => {
+    if (showComments) {
+      setShowComments(false);
+      setOpenMenuId(null);
+    } else {
+      setShowComments(true);
+      fetchComments();
+    }
   };
 
   const handleSubmitComment = async (e) => {
@@ -90,8 +111,23 @@ const Post = ({ post, token, currentUser }) => {
       });
       setComments(comments.filter(c => c.commentId !== commentId));
       setCommentsCount(prev => prev - 1);
+      setOpenMenuId(null);
     } catch (error) {
       console.error('Error deleting comment:', error);
+    }
+  };
+
+  const toggleMenu = (commentId, event) => {
+    if (openMenuId === commentId) {
+      setOpenMenuId(null);
+    } else {
+      const button = event.currentTarget;
+      const rect = button.getBoundingClientRect();
+      setMenuPosition({
+        top: rect.bottom + 4,
+        left: rect.right - 100,
+      });
+      setOpenMenuId(commentId);
     }
   };
 
@@ -126,8 +162,8 @@ const Post = ({ post, token, currentUser }) => {
           </Motion.button>
           <Motion.button
             whileTap={{ scale: 0.9 }}
-            className="post-action-button"
-            onClick={handleShowComments}
+            className={`post-action-button ${showComments ? 'post-action-button--active' : ''}`}
+            onClick={handleToggleComments}
           >
             <FaComment />
           </Motion.button>
@@ -151,7 +187,7 @@ const Post = ({ post, token, currentUser }) => {
       )}
 
       {commentsCount > 0 && !showComments && (
-        <button className="post-view-comments" onClick={handleShowComments}>
+        <button className="post-view-comments" onClick={handleToggleComments}>
           View all {commentsCount} comment{commentsCount !== 1 ? 's' : ''}
         </button>
       )}
@@ -159,10 +195,7 @@ const Post = ({ post, token, currentUser }) => {
       {showComments && (
         <div className="post-comments-section">
           <div className="post-comments-header">
-            <span>Comments</span>
-            <button className="post-comments-close" onClick={handleCloseComments}>
-              <FaTimes />
-            </button>
+            <span>Comments ({commentsCount})</span>
           </div>
 
           <div className="post-comments-list">
@@ -176,12 +209,31 @@ const Post = ({ post, token, currentUser }) => {
                     <span className="post-comment-text">{comment.text}</span>
                   </div>
                   {currentUser?.userId === comment.userId && (
-                    <button
-                      className="post-comment-delete"
-                      onClick={() => handleDeleteComment(comment.commentId)}
-                    >
-                      <FaTimes size={12} />
-                    </button>
+                    <div className="post-comment-menu-wrapper" ref={openMenuId === comment.commentId ? menuRef : null}>
+                      <button
+                        className="post-comment-menu-btn"
+                        onClick={(e) => toggleMenu(comment.commentId, e)}
+                      >
+                        <FaEllipsisV size={12} />
+                      </button>
+                      {openMenuId === comment.commentId && (
+                        <div
+                          className="post-comment-menu"
+                          style={{
+                            position: 'fixed',
+                            top: menuPosition.top,
+                            left: menuPosition.left,
+                          }}
+                        >
+                          <button
+                            className="post-comment-menu-item post-comment-menu-item--delete"
+                            onClick={() => handleDeleteComment(comment.commentId)}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   )}
                 </div>
               ))

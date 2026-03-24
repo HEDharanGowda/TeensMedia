@@ -1,14 +1,13 @@
 .feed-page {
   background: #fafafa;
   min-height: 100vh;
-  padding-top: 60px;
 }
 
 .stories-container {
   display: flex;
   overflow-x: auto;
-  gap: 12px;
-  padding: 10px 12px;
+  gap: 16px;
+  padding: 12px 16px;
   background: #fff;
   border-bottom: 1px solid #dbdbdb;
   max-width: 600px;
@@ -25,14 +24,14 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   cursor: pointer;
   flex-shrink: 0;
 }
 
 .story-ring {
   background: #e0e0e0;
-  padding: 2px;
+  padding: 3px;
   border-radius: 50%;
   display: flex;
   justify-content: center;
@@ -53,30 +52,28 @@
 }
 
 .story-image {
-  width: 56px;
-  height: 56px;
+  width: 62px;
+  height: 62px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #fff;
 }
 
 .story-image-placeholder {
-  width: 56px;
-  height: 56px;
+  width: 62px;
+  height: 62px;
   border-radius: 50%;
   background: #efefef;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
+  font-size: 26px;
   color: #8e8e8e;
-  border: 2px solid #fff;
 }
 
 .story-username {
-  font-size: 11px;
+  font-size: 12px;
   color: #262626;
-  max-width: 66px;
+  max-width: 72px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -103,13 +100,13 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 12px;
+  padding: 12px 16px;
 }
 
 .feed-post-user {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 .feed-post-avatar {
@@ -130,6 +127,7 @@
 .feed-post-username {
   font-weight: 600;
   font-size: 14px;
+  color: #262626;
 }
 
 .feed-post-time {
@@ -138,34 +136,33 @@
 }
 
 .feed-post-caption {
-  padding: 8px 12px 12px;
+  padding: 8px 16px 12px;
   font-size: 14px;
   line-height: 1.4;
+  color: #262626;
 }
 
 .feed-empty {
   background: #fff;
-  padding: 40px 20px;
+  padding: 60px 20px;
   text-align: center;
-  border-bottom: 1px solid #dbdbdb;
 }
 
 .feed-empty-icon {
-  font-size: 3rem;
-  margin-bottom: 16px;
+  font-size: 4rem;
+  margin-bottom: 20px;
 }
 
 .feed-empty-title {
   font-family: system-ui, -apple-system, sans-serif;
   color: #262626;
   margin: 0;
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   font-weight: 600;
 }
 
 .feed-empty-subtitle {
   color: #8e8e8e;
-  margin: 8px 0 0;
-  font-size: 0.9rem;
+  margin: 12px 0 0;
+  font-size: 0.95rem;
 }
-  

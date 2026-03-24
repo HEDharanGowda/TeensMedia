@@ -130,10 +130,6 @@ const Messages = ({ token, currentUser }) => {
 
   return (
     <div className="messages-page">
-      <div className="messages-header">
-        <h1>Messages</h1>
-      </div>
-
       <div className="messages-search">
         <FaSearch className="messages-search-icon" />
         <input

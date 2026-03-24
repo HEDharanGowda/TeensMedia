@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
 import Feed from './components/Feed';
@@ -7,7 +7,8 @@ import CreatePost from './components/CreatePost';
 import Profile from './components/Profile';
 import Messages from './components/Messages';
 import ChatView from './components/ChatView';
-import Navbar from './components/Navbar';
+import Header from './components/Header';
+import BottomNav from './components/BottomNav';
 import api, { getAuthHeaders } from './services/api';
 import './App.css';
 
@@ -22,7 +23,8 @@ function AppWrapper() {
 function App() {
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true); // New loading state
+  const [loading, setLoading] = useState(true);
+  const location = useLocation();
 
   const handleLogin = (userData) => {
     setUser(userData);
@@ -110,12 +112,17 @@ function App() {
     );
   }
 
+  const isChatView = location.pathname.match(/^\/messages\/.+$/);
+  const isProfileView = location.pathname.match(/^\/profile/);
+
   return (
     <>
-      <Navbar onLogout={handleLogout} />
-      <div className="content-container">
+      {!isChatView && !isProfileView && <Header />}
+      <div className={`content-container ${isChatView || isProfileView ? 'content-container--no-header' : ''}`}>
         <Routes>
           <Route path="/" element={<Feed posts={posts} token={user.token} currentUser={user} />} />
+          <Route path="/search" element={<Navigate to="/" />} />
+          <Route path="/activity" element={<Navigate to="/" />} />
           <Route
             path="/create"
             element={
@@ -167,6 +174,7 @@ function App() {
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </div>
+      {!isChatView && <BottomNav />}
     </>
   );
 }

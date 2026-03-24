@@ -32,7 +32,6 @@ function App() {
     checkBanStatus(userData.token);
   };
 
-  const handleLogout = () => {
   const handleProfilePictureChange = (profilePicture) => {
     setUser((prev) => {
       if (!prev) return prev;
@@ -41,6 +40,8 @@ function App() {
       return nextUser;
     });
   };
+
+  const handleLogout = () => {
     setUser(null);
     localStorage.removeItem('instasafe_user');
     window.location.href = '/login'; 
@@ -166,9 +167,9 @@ function App() {
                 token={user.token}
                 currentUser={user}
                 onLogout={handleLogout}
+                onProfilePictureChange={handleProfilePictureChange}
               />
             }
-                onProfilePictureChange={handleProfilePictureChange}
           />
           <Route
             path="/profile/:username"
@@ -177,9 +178,9 @@ function App() {
                 token={user.token}
                 currentUser={user}
                 onLogout={handleLogout}
+                onProfilePictureChange={handleProfilePictureChange}
               />
             }
-                onProfilePictureChange={handleProfilePictureChange}
           />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>

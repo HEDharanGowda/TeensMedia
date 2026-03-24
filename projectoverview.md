@@ -1,10 +1,13 @@
 # Project Overview: TeensMedia
 
 ## 1. Product Vision
-TeensMedia is a safety-first social media platform idea for teens where image posting is allowed only after automated moderation. The current implementation is a strong prototype that already demonstrates the end-to-end flow:
+TeensMedia is a safety-first social media platform for teens where posting and sharing are gated by automated moderation. The prototype now demonstrates end-to-end social features:
 - account creation and login,
-- image upload,
-- AI moderation decision,
+- image upload with AI moderation,
+- story creation/viewing,
+- follows/unfollows and profile viewing,
+- direct messages UI,
+- profile avatars with upload and reuse across UI,
 - violation tracking and automatic user ban.
 
 ## 2. Current Scope Implemented
@@ -18,7 +21,11 @@ TeensMedia is a safety-first social media platform idea for teens where image po
    - REJECTED: violation increment,
    - FLAGGED: soft warning path,
    - BANNED: account lock after threshold.
-5. Frontend refreshes feed and periodically checks user ban status.
+5. Users can follow/unfollow, see profiles (own and others), view posts grid, stats, and violation badge (self only).
+6. Users can upload/update a profile picture; it appears on profile, stories “Your story,” feed story rail, and bottom nav avatar.
+7. Users can create/view stories and open Story Viewer.
+8. Direct messages UI exists (socket wiring present; basic view integrated).
+9. Frontend refreshes feed and periodically checks ban status.
 
 ### Moderation Rules (Current)
 - Explicit content levels (`VERY_LIKELY`) for adult/racy: rejected.
@@ -37,7 +44,7 @@ TeensMedia is a safety-first social media platform idea for teens where image po
 - Motion/UI: framer-motion and react-icons.
 
 ### Backend Architecture
-Backend is now modular and layered:
+Backend is modular and layered:
 - server entrypoint,
 - app composition,
 - routes,
@@ -50,7 +57,7 @@ Backend is now modular and layered:
 This is much cleaner than a single large server file and is ready for production-grade upgrades.
 
 ### Data Storage Model
-- MongoDB (via Mongoose) stores users and posts.
+- MongoDB (via Mongoose) stores users, posts, conversations/messages (models present), and profile avatar as base64 string.
 - User moderation state (`isBanned`, `violations`) is persisted.
 - Data survives server restarts and is suitable for local Compass workflows.
 
@@ -75,6 +82,7 @@ This is much cleaner than a single large server file and is ready for production
 - jsonwebtoken
 - mongoose
 - zod
+- socket.io
 
 ### External API
 - Google Cloud Vision API (SAFE_SEARCH_DETECTION)
@@ -90,6 +98,21 @@ This is much cleaner than a single large server file and is ready for production
 - `GET /api/posts`
 - `GET /api/user/status` (Bearer token)
 
+### Profiles and Social
+- `GET /api/user/profile` (self)
+- `GET /api/user/:username/profile` (public)
+- `PATCH /api/user/profile-picture` (self avatar upload)
+- `GET /api/user/search?q=`
+- `POST /api/users/:userId/follow`
+- `DELETE /api/users/:userId/follow`
+
+### Stories
+- `GET /api/stories`
+- `POST /api/stories`
+
+### Messaging
+- `GET /api/messages/*` and socket.io client wiring present (UI integrated; backend endpoints exist for conversations/messages)
+
 ## 6. Design and Code Quality Observations
 
 ### What Is Good
@@ -99,24 +122,24 @@ This is much cleaner than a single large server file and is ready for production
 - Frontend has improved maintainability after CSS extraction.
 
 ### Current Risks / Gaps
-1. Access token auth is implemented, but refresh token/session rotation is not yet implemented.
-2. Token is stored in localStorage (acceptable for now, but secure-cookie strategy is stronger).
-3. No fine-grained role/permission model yet.
+1. Access token auth only; no refresh/session rotation.
+2. Token stored in localStorage (secure cookies would be stronger).
+3. No fine-grained role/permission model.
 4. API base URL is hardcoded in frontend.
-5. Request validation exists on auth/moderation routes, but not yet across all routes.
-6. No rate limiting and brute-force protection.
+5. Request validation not yet on all routes (e.g., messages/follow/stories).
+6. No rate limiting or brute-force protection.
 7. No automated unit/integration tests.
-8. Frontend API is mostly unified with axios client, but interceptors are not yet implemented.
-9. Static third-party image links for stories can be unreliable.
+8. Frontend axios client lacks interceptors for auth/refresh.
+9. Images stored as base64 in DB; object storage + CDN would scale better.
 
 ## 7. Recommended Improvement Roadmap
 
 ### Phase A: Production Foundation (High Priority)
 1. Add JWT refresh token strategy (or secure session cookie approach).
 2. Introduce environment-based API config for all frontend environments.
-3. Expand request validation coverage to every write endpoint.
+3. Expand request validation coverage to every write endpoint (posts, follows, messages, stories, profile avatar).
 4. Add rate limiting and security hardening headers.
-5. Move image storage from Base64-in-DB to object storage.
+5. Move image/avatar/story storage from Base64-in-DB to object storage + CDN.
 
 ### Phase B: Product Maturity (Medium Priority)
 1. Create moderation audit log and optional admin review queue.
@@ -133,13 +156,12 @@ This is much cleaner than a single large server file and is ready for production
 5. Add observability: structured logs, metrics, tracing.
 
 ## 8. Suggested New Features (Aligned With Your Vision)
-- Friend/follow model.
 - Moderation dashboard for admins.
 - Report post/report user workflow.
-- Captions, comments, and reactions with moderation controls.
 - Notification center.
 - Cloud image storage + CDN delivery.
 - Account recovery and email verification.
+- Rich messages (images) with moderation.
 
 ## 9. Professional Standards to Continue Following
 - Keep backend layered (route -> controller -> service -> db).

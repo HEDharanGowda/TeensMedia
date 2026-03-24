@@ -10,9 +10,15 @@ const StoryViewer = ({ userStory, onClose, allStories, currentIndex }) => {
   const [currentUserIndex, setCurrentUserIndex] = useState(currentIndex || 0);
   const [progress, setProgress] = useState(0);
 
+  const resolveAvatarSrc = (value) => {
+    if (!value) return null;
+    return value.startsWith('data:') ? value : `data:image/jpeg;base64,${value}`;
+  };
+
   const currentUserStory = allStories[currentUserIndex];
   const stories = currentUserStory?.stories || userStory?.stories || [];
   const username = currentUserStory?.username || userStory?.username;
+  const avatarSrc = resolveAvatarSrc(currentUserStory?.profilePicture || userStory?.profilePicture);
 
   useEffect(() => {
     setCurrentStoryIndex(0);
@@ -118,7 +124,13 @@ const StoryViewer = ({ userStory, onClose, allStories, currentIndex }) => {
           {/* Header */}
           <div className="story-viewer-header">
             <div className="story-viewer-user">
-              <div className="story-viewer-avatar">👤</div>
+              <div className="story-viewer-avatar">
+                {avatarSrc ? (
+                  <img src={avatarSrc} alt={`${username}'s avatar`} className="story-viewer-avatar-image" />
+                ) : (
+                  '👤'
+                )}
+              </div>
               <span className="story-viewer-username">{username}</span>
               <span className="story-viewer-time">
                 {formatTimeAgo(currentStory.createdAt)}

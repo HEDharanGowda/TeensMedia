@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   FaArrowLeft,
@@ -10,14 +10,15 @@ import {
   FaUserMinus,
   FaSignOutAlt,
   FaComment,
-  FaTh
+  FaTh,
+  FaCamera
 } from 'react-icons/fa';
 import api, { getAuthHeaders } from '../services/api';
 import './Profile.css';
 
 const Motion = motion;
 
-const Profile = ({ token, currentUser, onLogout }) => {
+const Profile = ({ token, currentUser, onLogout, onProfilePictureChange }) => {
   const { username } = useParams();
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
@@ -27,12 +28,20 @@ const Profile = ({ token, currentUser, onLogout }) => {
   const [followLoading, setFollowLoading] = useState(false);
   const [followersCount, setFollowersCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarError, setAvatarError] = useState('');
+  const fileInputRef = useRef(null);
 
   const isOwnProfile = !username || username === currentUser?.username;
 
   useEffect(() => {
     fetchProfile();
   }, [username]);
+
+  const resolveAvatarSrc = (value) => {
+    if (!value) return null;
+    return value.startsWith('data:') ? value : `data:image/jpeg;base64,${value}`;
+  };
 
   const fetchProfile = async () => {
     setLoading(true);
@@ -104,6 +113,82 @@ const Profile = ({ token, currentUser, onLogout }) => {
   const handleMessageClick = () => {
     // Navigate to messages with this user
     navigate('/messages');
+  };
+
+  const handleAvatarButtonClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleAvatarChange = async (event) => {
+    const file = event.target.files?.[0];
+    setAvatarError('');
+
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setAvatarError('Please select an image file.');
+      event.target.value = '';
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setAvatarError('Image should be smaller than 5MB.');
+      event.target.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const dataUrl = reader.result;
+      const base64String = typeof dataUrl === 'string' ? dataUrl.split(',')[1] || dataUrl : '';
+
+      if (!base64String) {
+        setAvatarError('Could not read image data.');
+        return;
+      }
+
+      setAvatarUploading(true);
+      try {
+        const response = await api.patch(
+          '/user/profile-picture',
+          { profilePicture: base64String },
+          { headers: getAuthHeaders(token) },
+        );
+
+        const normalized = resolveAvatarSrc(response.data.profilePicture);
+
+        setProfile((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            user: {
+              ...prev.user,
+              profilePicture: normalized,
+            },
+          };
+        });
+
+        onProfilePictureChange?.(normalized);
+
+        const stored = localStorage.getItem('instasafe_user');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          parsed.profilePicture = normalized;
+          localStorage.setItem('instasafe_user', JSON.stringify(parsed));
+        }
+      } catch (err) {
+        setAvatarError(err.response?.data?.message || 'Failed to update profile picture.');
+      } finally {
+        setAvatarUploading(false);
+        event.target.value = '';
+      }
+    };
+
+    reader.onerror = () => {
+      setAvatarError('Unable to read the selected file.');
+    };
+
+    reader.readAsDataURL(file);
   };
 
   const handlePostClick = (post) => {
@@ -178,10 +263,39 @@ const Profile = ({ token, currentUser, onLogout }) => {
         <div className="profile-avatar-section">
           <div className="profile-avatar-wrapper">
             <div className="profile-avatar">
-              <span className="profile-avatar-icon">👤</span>
+              {resolveAvatarSrc(profile.user.profilePicture) ? (
+                <img
+                  src={resolveAvatarSrc(profile.user.profilePicture)}
+                  alt={`${profile.user.username}'s avatar`}
+                  className="profile-avatar-image"
+                />
+              ) : (
+                <span className="profile-avatar-icon">👤</span>
+              )}
+              {isOwnProfile && (
+                <button
+                  type="button"
+                  className="profile-avatar-edit"
+                  onClick={handleAvatarButtonClick}
+                  disabled={avatarUploading}
+                >
+                  <FaCamera />
+                  <span>{avatarUploading ? 'Saving...' : 'Update photo'}</span>
+                </button>
+              )}
+              {isOwnProfile && (
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="profile-avatar-input"
+                  onChange={handleAvatarChange}
+                />
+              )}
             </div>
           </div>
           <h2 className="profile-display-name">{profile.user.username}</h2>
+          {avatarError && <p className="profile-avatar-error">{avatarError}</p>}
         </div>
 
         {/* Stats */}

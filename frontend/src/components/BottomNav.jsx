@@ -14,7 +14,14 @@ import './BottomNav.css';
 
 const Motion = motion;
 
-const BottomNav = () => {
+const resolveAvatarSrc = (value) => {
+  if (!value) return null;
+  return value.startsWith('data:') ? value : `data:image/jpeg;base64,${value}`;
+};
+
+const BottomNav = ({ currentUser }) => {
+  const avatarSrc = resolveAvatarSrc(currentUser?.profilePicture);
+
   return (
     <Motion.nav
       initial={{ y: 100 }}
@@ -71,7 +78,11 @@ const BottomNav = () => {
         >
           {({ isActive }) => (
             <Motion.div whileTap={{ scale: 0.9 }} className={`bottom-nav__avatar ${isActive ? 'bottom-nav__avatar--active' : ''}`}>
-              <span>👤</span>
+              {avatarSrc ? (
+                <img src={avatarSrc} alt="Profile" className="bottom-nav__avatar-image" />
+              ) : (
+                <span>👤</span>
+              )}
             </Motion.div>
           )}
         </NavLink>

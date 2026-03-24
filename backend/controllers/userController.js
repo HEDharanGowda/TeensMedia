@@ -69,6 +69,7 @@ async function getUserProfile(req, res, next) {
       user: {
         userId: user._id.toString(),
         username: user.username,
+        profilePicture: user.profilePicture,
         createdAt: user.createdAt,
         postCount: posts.length,
         violations: user.violations,
@@ -124,6 +125,7 @@ async function getUserProfileByUsername(req, res, next) {
       user: {
         userId: user._id.toString(),
         username: user.username,
+        profilePicture: user.profilePicture,
         createdAt: user.createdAt,
         postCount: posts.length,
         followersCount: user.followers?.length || 0,
@@ -132,6 +134,49 @@ async function getUserProfileByUsername(req, res, next) {
         ...(isOwnProfile && { violations: user.violations }),
       },
       posts: normalizedPosts,
+    });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+async function updateProfilePicture(req, res, next) {
+  try {
+    const authUserId = req.user?.userId;
+    const { profilePicture } = req.body;
+
+    if (!authUserId) {
+      return res.status(401).json({
+        status: 'ERROR',
+        message: 'Unauthorized',
+      });
+    }
+
+    const user = await User.findById(authUserId);
+
+    if (!user) {
+      return res.status(404).json({
+        status: 'ERROR',
+        message: 'User not found',
+      });
+    }
+
+    const buffer = Buffer.from(profilePicture, 'base64');
+    const MAX_BYTES = 8 * 1024 * 1024; // 8MB decoded
+
+    if (!buffer.length || buffer.length > MAX_BYTES) {
+      return res.status(400).json({
+        status: 'ERROR',
+        message: 'Profile picture is too large or invalid',
+      });
+    }
+
+    user.profilePicture = profilePicture;
+    await user.save();
+
+    return res.json({
+      status: 'OK',
+      profilePicture,
     });
   } catch (error) {
     return next(error);
@@ -177,4 +222,5 @@ module.exports = {
   getUserProfile,
   getUserProfileByUsername,
   searchUsers,
+  updateProfilePicture,
 };

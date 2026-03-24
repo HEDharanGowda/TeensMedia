@@ -32,6 +32,13 @@
 .story-ring {
   background: #e0e0e0;
   padding: 3px;
+
+.story-avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
   border-radius: 50%;
   display: flex;
   justify-content: center;

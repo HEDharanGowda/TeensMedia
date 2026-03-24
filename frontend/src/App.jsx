@@ -33,6 +33,14 @@ function App() {
   };
 
   const handleLogout = () => {
+  const handleProfilePictureChange = (profilePicture) => {
+    setUser((prev) => {
+      if (!prev) return prev;
+      const nextUser = { ...prev, profilePicture };
+      localStorage.setItem('instasafe_user', JSON.stringify(nextUser));
+      return nextUser;
+    });
+  };
     setUser(null);
     localStorage.removeItem('instasafe_user');
     window.location.href = '/login'; 
@@ -160,6 +168,7 @@ function App() {
                 onLogout={handleLogout}
               />
             }
+                onProfilePictureChange={handleProfilePictureChange}
           />
           <Route
             path="/profile/:username"
@@ -170,11 +179,12 @@ function App() {
                 onLogout={handleLogout}
               />
             }
+                onProfilePictureChange={handleProfilePictureChange}
           />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </div>
-      {!isChatView && <BottomNav />}
+      {!isChatView && <BottomNav currentUser={user} />}
     </>
   );
 }

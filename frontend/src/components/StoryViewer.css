@@ -80,6 +80,14 @@
   align-items: center;
   justify-content: center;
   font-size: 16px;
+  overflow: hidden;
+}
+
+.story-viewer-avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .story-viewer-username {

@@ -17,6 +17,11 @@ const Feed = ({ posts, token, currentUser }) => {
   const [viewingStory, setViewingStory] = useState(null);
   const [viewingStoryIndex, setViewingStoryIndex] = useState(0);
 
+  const resolveAvatarSrc = (value) => {
+    if (!value) return null;
+    return value.startsWith('data:') ? value : `data:image/jpeg;base64,${value}`;
+  };
+
   useEffect(() => {
     // Clear stories when user changes to avoid showing stale data
     setStories([]);
@@ -69,7 +74,17 @@ const Feed = ({ posts, token, currentUser }) => {
           <div className={currentUserStory ? 'story-ring story-ring--active' : 'story-ring'}>
             <div className="story-ring__inner">
               <div className="story-image story-image-placeholder">
-                {currentUserStory ? '👤' : <FaPlus size={24} />}
+                {currentUserStory && resolveAvatarSrc(currentUser?.profilePicture) ? (
+                  <img
+                    src={resolveAvatarSrc(currentUser?.profilePicture)}
+                    alt="Your avatar"
+                    className="story-avatar-image"
+                  />
+                ) : currentUserStory ? (
+                  '👤'
+                ) : (
+                  <FaPlus size={24} />
+                )}
               </div>
             </div>
           </div>
@@ -92,7 +107,15 @@ const Feed = ({ posts, token, currentUser }) => {
               <div className="story-ring story-ring--active">
                 <div className="story-ring__inner">
                   <div className="story-image story-image-placeholder">
-                    👤
+                    {resolveAvatarSrc(userStory.profilePicture) ? (
+                      <img
+                        src={resolveAvatarSrc(userStory.profilePicture)}
+                        alt={`${userStory.username}'s avatar`}
+                        className="story-avatar-image"
+                      />
+                    ) : (
+                      '👤'
+                    )}
                   </div>
                 </div>
               </div>

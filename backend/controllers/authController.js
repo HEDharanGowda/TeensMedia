@@ -50,6 +50,7 @@ async function login(req, res, next) {
       success: true,
       userId: user._id.toString(),
       username: user.username,
+      profilePicture: user.profilePicture,
       token: accessToken,
     });
   } catch (error) {
@@ -82,6 +83,7 @@ async function register(req, res, next) {
       success: true,
       userId: user._id.toString(),
       username: user.username,
+      profilePicture: user.profilePicture,
       token: accessToken,
     });
   } catch (error) {

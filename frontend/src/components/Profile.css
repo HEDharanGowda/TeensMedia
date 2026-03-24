@@ -44,7 +44,6 @@
 }
 
 .profile-error-button {
-  margin-top: 8px;
   padding: 10px 24px;
   background: #0095f6;
   color: white;
@@ -58,6 +57,31 @@
 
 .profile-error-button:hover {
   background: #1877f2;
+}
+
+.profile-error-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.profile-error-logout-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  background: #ed4956;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.profile-error-logout-button:hover {
+  background: #c72f3b;
 }
 
 /* Profile Header */
@@ -101,6 +125,11 @@
   gap: 20px;
 }
 
+.profile-action-buttons {
+  display: flex;
+  gap: 12px;
+}
+
 .profile-username {
   font-size: 20px;
   font-weight: 300;
@@ -122,6 +151,25 @@
 
 .profile-edit-button:hover {
   background: #dbdbdb;
+}
+
+.profile-logout-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 24px;
+  background: #ed4956;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.profile-logout-button:hover {
+  background: #c72f3b;
 }
 
 .profile-follow-button {
@@ -418,8 +466,15 @@
     gap: 2px;
   }
 
-  .profile-edit-button {
+  .profile-action-buttons {
     width: 100%;
+    flex-direction: column;
+  }
+
+  .profile-edit-button,
+  .profile-logout-button {
+    width: 100%;
+    justify-content: center;
   }
 
   .profile-follow-button {

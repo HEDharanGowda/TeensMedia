@@ -131,7 +131,7 @@ const Feed = ({ posts, token, currentUser }) => {
                 </span>
               </div>
 
-              <Post post={post} />
+              <Post post={post} token={token} currentUser={currentUser} />
             </article>
           ))
         ) : (

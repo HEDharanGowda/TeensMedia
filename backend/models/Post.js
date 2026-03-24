@@ -16,10 +16,17 @@ const postSchema = new mongoose.Schema(
       default: '',
       maxlength: 500,
     },
+    likes: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    }],
   },
   {
     timestamps: true,
   },
 );
+
+// Index for faster like lookups
+postSchema.index({ likes: 1 });
 
 module.exports = mongoose.model('Post', postSchema);

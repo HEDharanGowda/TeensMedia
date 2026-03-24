@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FaCalendarAlt, FaImages, FaExclamationTriangle, FaUserPlus, FaUserMinus } from 'react-icons/fa';
+import { FaCalendarAlt, FaImages, FaExclamationTriangle, FaUserPlus, FaUserMinus, FaSignOutAlt } from 'react-icons/fa';
 import api, { getAuthHeaders } from '../services/api';
 import './Profile.css';
 
 const Motion = motion;
 
-const Profile = ({ token, currentUser }) => {
+const Profile = ({ token, currentUser, onLogout }) => {
   const { username } = useParams();
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
@@ -120,9 +120,17 @@ const Profile = ({ token, currentUser }) => {
       >
         <FaExclamationTriangle size={48} />
         <h2>{error}</h2>
-        <button onClick={() => navigate('/')} className="profile-error-button">
-          Go to Feed
-        </button>
+        <div className="profile-error-buttons">
+          <button onClick={() => navigate('/')} className="profile-error-button">
+            Go to Feed
+          </button>
+          {isOwnProfile && onLogout && (
+            <button onClick={onLogout} className="profile-error-logout-button">
+              <FaSignOutAlt />
+              <span>Logout</span>
+            </button>
+          )}
+        </div>
       </Motion.div>
     );
   }
@@ -152,9 +160,20 @@ const Profile = ({ token, currentUser }) => {
           <div className="profile-info-top">
             <h1 className="profile-username">{profile.user.username}</h1>
             {isOwnProfile ? (
-              <button className="profile-edit-button">
-                Edit profile
-              </button>
+              <div className="profile-action-buttons">
+                <button className="profile-edit-button">
+                  Edit profile
+                </button>
+                <Motion.button
+                  className="profile-logout-button"
+                  onClick={onLogout}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <FaSignOutAlt />
+                  <span>Logout</span>
+                </Motion.button>
+              </div>
             ) : (
               <Motion.button
                 className={`profile-follow-button ${isFollowing ? 'profile-follow-button--following' : ''}`}

@@ -10,6 +10,7 @@ const userRoutes = require('./routes/userRoutes');
 const storyRoutes = require('./routes/storyRoutes');
 const followRoutes = require('./routes/followRoutes');
 const messageRoutes = require('./routes/messageRoutes');
+const interactionRoutes = require('./routes/interactionRoutes');
 const { notFoundHandler, errorHandler } = require('./middlewares/errorHandler');
 
 const app = express();
@@ -24,6 +25,7 @@ app.use('/api', userRoutes);
 app.use('/api', storyRoutes);
 app.use('/api/users', followRoutes);
 app.use('/api/messages', messageRoutes);
+app.use('/api/posts', interactionRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

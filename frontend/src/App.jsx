@@ -51,15 +51,20 @@ function App() {
     }
   }, []);
 
+  const fetchPosts = useCallback((userId) => {
+    const url = userId ? `/posts?userId=${userId}` : '/posts';
+    api.get(url)
+      .then(res => setPosts(res.data))
+      .catch(err => console.error('Error fetching posts:', err));
+  }, []);
+
   const handlePostSuccess = (status) => {
     if (status === 'BANNED') {
       handleLogout();
       return;
     }
 
-    api.get('/posts')
-      .then(res => setPosts(res.data))
-      .catch(err => console.error('Error fetching posts:', err));
+    fetchPosts(user?.userId);
   };
 
   useEffect(() => {
@@ -76,11 +81,9 @@ function App() {
       setUser(userData);
       checkBanStatus(userData.token);
 
-      api.get('/posts')
-        .then(res => setPosts(res.data))
-        .catch(err => console.error('Failed to fetch posts:', err));
+      fetchPosts(userData.userId);
     }
-    
+
     setLoading(false); // done checking localStorage
 
     const interval = setInterval(() => {
@@ -90,7 +93,7 @@ function App() {
     }, 300000);
 
     return () => clearInterval(interval);
-  }, [checkBanStatus, user?.token]);
+  }, [checkBanStatus, user?.token, fetchPosts]);
 
   // While checking user, show nothing (or loader)
   if (loading) {
@@ -147,6 +150,7 @@ function App() {
               <Profile
                 token={user.token}
                 currentUser={user}
+                onLogout={handleLogout}
               />
             }
           />
@@ -156,6 +160,7 @@ function App() {
               <Profile
                 token={user.token}
                 currentUser={user}
+                onLogout={handleLogout}
               />
             }
           />

@@ -49,6 +49,10 @@
   align-items: center;
 }
 
+.post-action-button--liked {
+  color: #ed4956;
+}
+
 .post-likes {
   padding: 0 12px 6px;
   font-weight: 600;
@@ -59,4 +63,144 @@
   padding: 0 12px 12px;
   font-size: 14px;
   line-height: 1.5;
+}
+
+.post-view-comments {
+  display: block;
+  padding: 0 12px 12px;
+  background: none;
+  border: none;
+  color: #8e8e8e;
+  font-size: 14px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.post-view-comments:hover {
+  color: #262626;
+}
+
+/* Comments Section */
+.post-comments-section {
+  border-top: 1px solid #efefef;
+  padding: 12px;
+}
+
+.post-comments-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.post-comments-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #8e8e8e;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.post-comments-close:hover {
+  color: #262626;
+}
+
+.post-comments-list {
+  max-height: 200px;
+  overflow-y: auto;
+  margin-bottom: 12px;
+}
+
+.post-comments-loading,
+.post-comments-empty {
+  color: #8e8e8e;
+  font-size: 14px;
+  text-align: center;
+  padding: 16px 0;
+}
+
+.post-comment {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 8px 0;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.post-comment:last-child {
+  border-bottom: none;
+}
+
+.post-comment-content {
+  flex: 1;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.post-comment-username {
+  font-weight: 600;
+  margin-right: 6px;
+}
+
+.post-comment-text {
+  color: #262626;
+}
+
+.post-comment-delete {
+  background: none;
+  border: none;
+  color: #8e8e8e;
+  cursor: pointer;
+  padding: 4px;
+  margin-left: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.post-comment-delete:hover {
+  color: #ed4956;
+}
+
+/* Comment Form */
+.post-comment-form {
+  display: flex;
+  gap: 8px;
+  border-top: 1px solid #efefef;
+  padding-top: 12px;
+}
+
+.post-comment-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  padding: 8px 0;
+  font-family: inherit;
+}
+
+.post-comment-input::placeholder {
+  color: #8e8e8e;
+}
+
+.post-comment-submit {
+  background: none;
+  border: none;
+  color: #0095f6;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.post-comment-submit:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.post-comment-submit:not(:disabled):hover {
+  color: #00376b;
 }

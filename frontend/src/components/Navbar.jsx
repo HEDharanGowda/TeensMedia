@@ -1,6 +1,6 @@
 
 import { Link } from 'react-router-dom';
-import { FaHome, FaPlusCircle, FaSignOutAlt, FaUser, FaComment } from 'react-icons/fa';
+import { FaHome, FaPlusCircle, FaUser, FaComment } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import './Navbar.css';
 
@@ -41,17 +41,6 @@ const Navbar = ({ onLogout }) => {
             <Link to="/profile" className="navbar__link" aria-label="View profile">
               <FaUser size={24} />
             </Link>
-          </Motion.div>
-
-          <Motion.div
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={onLogout}
-            className="navbar__logout"
-            role="button"
-            aria-label="Sign out"
-          >
-            <FaSignOutAlt size={24} />
           </Motion.div>
         </div>
       </div>

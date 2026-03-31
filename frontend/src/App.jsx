@@ -26,6 +26,11 @@ function App() {
   const [loading, setLoading] = useState(true);
   const location = useLocation();
 
+  // Always clear any persisted user on first load to force login screen
+  useEffect(() => {
+    localStorage.removeItem('instasafe_user');
+  }, []);
+
   const handleLogin = (userData) => {
     setUser(userData);
     localStorage.setItem('instasafe_user', JSON.stringify(userData));
@@ -75,6 +80,10 @@ function App() {
       return;
     }
 
+    fetchPosts(user?.userId);
+  };
+
+  const handlePostDeleted = () => {
     fetchPosts(user?.userId);
   };
 
@@ -129,7 +138,7 @@ function App() {
       {!isChatView && !isProfileView && <Header />}
       <div className={`content-container ${isChatView || isProfileView ? 'content-container--no-header' : ''}`}>
         <Routes>
-          <Route path="/" element={<Feed posts={posts} token={user.token} currentUser={user} />} />
+          <Route path="/" element={<Feed posts={posts} token={user.token} currentUser={user} onPostDeleted={handlePostDeleted} />} />
           <Route path="/search" element={<Navigate to="/" />} />
           <Route path="/activity" element={<Navigate to="/" />} />
           <Route
@@ -185,7 +194,7 @@ function App() {
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </div>
-      <BottomNav currentUser={user} />
+      {!isChatView && <BottomNav currentUser={user} />}
     </>
   );
 }

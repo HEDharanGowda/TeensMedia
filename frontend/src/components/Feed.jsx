@@ -11,7 +11,7 @@ import './Feed.css';
 
 const Motion = motion;
 
-const Feed = ({ posts, token, currentUser }) => {
+const Feed = ({ posts, token, currentUser, onPostDeleted }) => {
   const [stories, setStories] = useState([]);
   const [showAddStory, setShowAddStory] = useState(false);
   const [viewingStory, setViewingStory] = useState(null);
@@ -174,7 +174,7 @@ const Feed = ({ posts, token, currentUser }) => {
                 </span>
               </div>
 
-              <Post post={post} token={token} currentUser={currentUser} />
+              <Post post={post} token={token} currentUser={currentUser} onPostDeleted={onPostDeleted} />
             </article>
           ))
         ) : (

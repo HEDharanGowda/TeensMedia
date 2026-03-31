@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { FaHeart, FaRegHeart, FaComment, FaPaperPlane, FaBookmark, FaEllipsisV } from 'react-icons/fa';
+import { FaHeart, FaRegHeart, FaComment, FaPaperPlane, FaBookmark, FaEllipsisV, FaTrash } from 'react-icons/fa';
 import api, { getAuthHeaders } from '../services/api';
 import './Post.css';
 
 const Motion = motion;
 
-const Post = ({ post, token, currentUser }) => {
+const Post = ({ post, token, currentUser, onPostDeleted }) => {
   const [liked, setLiked] = useState(post.isLiked || false);
   const [likesCount, setLikesCount] = useState(post.likesCount || 0);
   const [showComments, setShowComments] = useState(false);
@@ -17,7 +17,13 @@ const Post = ({ post, token, currentUser }) => {
   const [submittingComment, setSubmittingComment] = useState(false);
   const [openMenuId, setOpenMenuId] = useState(null);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
+  const [showPostMenu, setShowPostMenu] = useState(false);
+  const [postMenuPosition, setPostMenuPosition] = useState({ top: 0, left: 0 });
+  const [deletingPost, setDeletingPost] = useState(false);
   const menuRef = useRef(null);
+  const postMenuRef = useRef(null);
+
+  const isOwnPost = currentUser?.userId === post.userId;
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -25,16 +31,19 @@ const Post = ({ post, token, currentUser }) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
         setOpenMenuId(null);
       }
+      if (postMenuRef.current && !postMenuRef.current.contains(event.target)) {
+        setShowPostMenu(false);
+      }
     };
 
-    if (openMenuId) {
+    if (openMenuId || showPostMenu) {
       document.addEventListener('mousedown', handleClickOutside);
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [openMenuId]);
+  }, [openMenuId, showPostMenu]);
 
   const handleLike = async () => {
     if (!token) return;
@@ -131,6 +140,43 @@ const Post = ({ post, token, currentUser }) => {
     }
   };
 
+  const togglePostMenu = (event) => {
+    if (showPostMenu) {
+      setShowPostMenu(false);
+    } else {
+      const button = event.currentTarget;
+      const rect = button.getBoundingClientRect();
+      setPostMenuPosition({
+        top: rect.bottom + 4,
+        left: rect.right - 120,
+      });
+      setShowPostMenu(true);
+    }
+  };
+
+  const handleDeletePost = async () => {
+    if (!token || deletingPost) return;
+
+    if (!window.confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
+      setShowPostMenu(false);
+      return;
+    }
+
+    try {
+      setDeletingPost(true);
+      await api.delete(`/posts/${post.id}`, {
+        headers: getAuthHeaders(token),
+      });
+      setShowPostMenu(false);
+      onPostDeleted?.(post.id);
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      alert('Failed to delete post. Please try again.');
+    } finally {
+      setDeletingPost(false);
+    }
+  };
+
   return (
     <Motion.div
       initial={{ opacity: 0 }}
@@ -171,9 +217,41 @@ const Post = ({ post, token, currentUser }) => {
             <FaPaperPlane />
           </Motion.button>
         </div>
-        <Motion.button whileTap={{ scale: 0.9 }} className="post-action-button">
-          <FaBookmark />
-        </Motion.button>
+        <div className="post-actions-right">
+          <Motion.button whileTap={{ scale: 0.9 }} className="post-action-button">
+            <FaBookmark />
+          </Motion.button>
+          {isOwnPost && (
+            <div className="post-menu-wrapper" ref={postMenuRef}>
+              <Motion.button
+                whileTap={{ scale: 0.9 }}
+                className="post-action-button"
+                onClick={togglePostMenu}
+              >
+                <FaEllipsisV />
+              </Motion.button>
+              {showPostMenu && (
+                <div
+                  className="post-menu"
+                  style={{
+                    position: 'fixed',
+                    top: postMenuPosition.top,
+                    left: postMenuPosition.left,
+                  }}
+                >
+                  <button
+                    className="post-menu-item post-menu-item--delete"
+                    onClick={handleDeletePost}
+                    disabled={deletingPost}
+                  >
+                    <FaTrash size={14} />
+                    <span>{deletingPost ? 'Deleting...' : 'Delete Post'}</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="post-likes">

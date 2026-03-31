@@ -1,5 +1,7 @@
-const fallbackApi = 'http://localhost:5000/api';
-const fallbackSocket = 'http://localhost:5000';
+
+// Use relative paths for production deployment
+const fallbackApi = '/api';
+const fallbackSocket = '/';
 
 export function getApiBaseUrl() {
   return import.meta.env.VITE_API_BASE_URL || fallbackApi;

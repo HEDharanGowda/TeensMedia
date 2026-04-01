@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { getSignedUrlForUrl } = require('../services/storageService');
 
 function createAccessToken(user) {
   return jwt.sign(
@@ -50,7 +51,7 @@ async function login(req, res, next) {
       success: true,
       userId: user._id.toString(),
       username: user.username,
-      profilePicture: user.profilePicture,
+      profilePicture: await getSignedUrlForUrl(user.profilePicture),
       token: accessToken,
     });
   } catch (error) {
@@ -83,7 +84,7 @@ async function register(req, res, next) {
       success: true,
       userId: user._id.toString(),
       username: user.username,
-      profilePicture: user.profilePicture,
+      profilePicture: await getSignedUrlForUrl(user.profilePicture),
       token: accessToken,
     });
   } catch (error) {

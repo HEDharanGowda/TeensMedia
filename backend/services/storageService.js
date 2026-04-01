@@ -1,4 +1,5 @@
-const { S3Client, PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
+const { S3Client, PutObjectCommand, DeleteObjectCommand, GetObjectCommand } = require('@aws-sdk/client-s3');
+const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 const crypto = require('crypto');
 
 const {
@@ -30,6 +31,19 @@ function buildPublicUrl(key) {
   return `https://${S3_BUCKET}.s3.${S3_REGION}.amazonaws.com/${key}`;
 }
 
+async function buildSignedUrl(key, expiresInSeconds = 900) {
+  if (!key || !S3_BUCKET || !S3_REGION) return null;
+
+  const command = new GetObjectCommand({ Bucket: S3_BUCKET, Key: key });
+
+  try {
+    return await getSignedUrl(s3, command, { expiresIn: expiresInSeconds });
+  } catch (err) {
+    console.error('[storageService] Failed to generate presigned URL', err);
+    return null;
+  }
+}
+
 function getKeyFromUrl(url) {
   if (!url) return null;
   if (S3_CDN_BASE_URL && url.startsWith(S3_CDN_BASE_URL)) {
@@ -40,6 +54,14 @@ function getKeyFromUrl(url) {
     return url.replace(bucketHost, '');
   }
   return null;
+}
+
+async function getSignedUrlForUrl(url, expiresInSeconds = 900) {
+  const key = getKeyFromUrl(url);
+  if (!key) return url;
+
+  const signed = await buildSignedUrl(key, expiresInSeconds);
+  return signed || url; // fall back to original if signing fails
 }
 
 async function uploadBase64Image(imageBase64, keyPrefix = 'posts') {
@@ -80,4 +102,6 @@ module.exports = {
   uploadBase64Image,
   deleteObject,
   getKeyFromUrl,
+  getSignedUrlForUrl,
+  buildSignedUrl,
 };

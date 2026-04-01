@@ -1,6 +1,6 @@
 const User = require('../models/User');
 const Post = require('../models/Post');
-const { uploadBase64Image, deleteObject, getKeyFromUrl } = require('../services/storageService');
+const { uploadBase64Image, deleteObject, getKeyFromUrl, getSignedUrlForUrl } = require('../services/storageService');
 const { analyzeImageSafety } = require('../services/visionService');
 const { EXPLICIT_LEVEL, QUESTIONABLE_LEVEL } = require('../config/moderation');
 
@@ -61,19 +61,21 @@ async function getUserProfile(req, res, next) {
       .sort({ createdAt: -1 })
       .select({ _id: 1, imageUrl: 1, imageBase64: 1, caption: 1, createdAt: 1 });
 
-    const normalizedPosts = posts.map((post) => ({
-      id: post._id.toString(),
-      imageUrl: post.imageUrl,
-      imageBase64: post.imageBase64,
-      caption: post.caption,
-      timestamp: post.createdAt.toISOString(),
-    }));
+    const normalizedPosts = await Promise.all(
+      posts.map(async (post) => ({
+        id: post._id.toString(),
+        imageUrl: await getSignedUrlForUrl(post.imageUrl),
+        imageBase64: post.imageBase64,
+        caption: post.caption,
+        timestamp: post.createdAt.toISOString(),
+      }))
+    );
 
     return res.json({
       user: {
         userId: user._id.toString(),
         username: user.username,
-        profilePicture: user.profilePicture,
+        profilePicture: await getSignedUrlForUrl(user.profilePicture),
         createdAt: user.createdAt,
         postCount: posts.length,
         violations: user.violations,
@@ -115,13 +117,15 @@ async function getUserProfileByUsername(req, res, next) {
       .sort({ createdAt: -1 })
       .select({ _id: 1, imageUrl: 1, imageBase64: 1, caption: 1, createdAt: 1 });
 
-    const normalizedPosts = posts.map((post) => ({
-      id: post._id.toString(),
-      imageUrl: post.imageUrl,
-      imageBase64: post.imageBase64,
-      caption: post.caption,
-      timestamp: post.createdAt.toISOString(),
-    }));
+    const normalizedPosts = await Promise.all(
+      posts.map(async (post) => ({
+        id: post._id.toString(),
+        imageUrl: await getSignedUrlForUrl(post.imageUrl),
+        imageBase64: post.imageBase64,
+        caption: post.caption,
+        timestamp: post.createdAt.toISOString(),
+      }))
+    );
 
     const isOwnProfile = user._id.toString() === authUserId;
     const isFollowing = currentUser?.following?.includes(user._id) || false;
@@ -130,7 +134,7 @@ async function getUserProfileByUsername(req, res, next) {
       user: {
         userId: user._id.toString(),
         username: user.username,
-        profilePicture: user.profilePicture,
+        profilePicture: await getSignedUrlForUrl(user.profilePicture),
         createdAt: user.createdAt,
         postCount: posts.length,
         followersCount: user.followers?.length || 0,
@@ -210,7 +214,7 @@ async function updateProfilePicture(req, res, next) {
 
     return res.json({
       status: 'OK',
-      profilePicture: imageUrl,
+      profilePicture: await getSignedUrlForUrl(imageUrl),
     });
   } catch (error) {
     return next(error);

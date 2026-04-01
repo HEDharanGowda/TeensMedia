@@ -1,7 +1,7 @@
 const Story = require('../models/Story');
 const User = require('../models/User');
 const { analyzeImageSafety } = require('../services/visionService');
-const { uploadBase64Image, deleteObject, getKeyFromUrl } = require('../services/storageService');
+const { uploadBase64Image, deleteObject, getKeyFromUrl, getSignedUrlForUrl } = require('../services/storageService');
 const {
   MAX_VIOLATIONS,
   EXPLICIT_LEVEL,
@@ -91,13 +91,15 @@ async function createStory(req, res, next) {
       expiresAt,
     });
 
+    const signedImageUrl = await getSignedUrlForUrl(story.imageUrl);
+
     return res.status(201).json({
       status: 'APPROVED',
       message: 'Story created successfully',
       story: {
         id: story._id.toString(),
         userId: story.userId.toString(),
-        imageUrl: story.imageUrl,
+        imageUrl: signedImageUrl,
         expiresAt: story.expiresAt.toISOString(),
         createdAt: story.createdAt.toISOString(),
       },
@@ -122,24 +124,27 @@ async function getStories(req, res, next) {
     // Group stories by user (most recent story per user)
     const userStoriesMap = new Map();
 
-    stories.forEach((story) => {
+    for (const story of stories) {
       const userId = story.userId._id.toString();
+      const profilePicture = await getSignedUrlForUrl(story.userId.profilePicture);
+
       if (!userStoriesMap.has(userId)) {
         userStoriesMap.set(userId, {
           userId,
           username: story.userId.username,
-          profilePicture: story.userId.profilePicture || null,
+          profilePicture,
           stories: [],
         });
       }
+
       userStoriesMap.get(userId).stories.push({
         id: story._id.toString(),
-        imageUrl: story.imageUrl,
+        imageUrl: await getSignedUrlForUrl(story.imageUrl),
         imageBase64: story.imageBase64,
         createdAt: story.createdAt.toISOString(),
         expiresAt: story.expiresAt.toISOString(),
       });
-    });
+    }
 
     // Convert map to array
     const groupedStories = Array.from(userStoriesMap.values());
@@ -170,13 +175,15 @@ async function getUserStories(req, res, next) {
       .sort({ createdAt: -1 })
       .select({ _id: 1, imageUrl: 1, imageBase64: 1, createdAt: 1, expiresAt: 1 });
 
-    const normalizedStories = stories.map((story) => ({
-      id: story._id.toString(),
-      imageUrl: story.imageUrl,
-      imageBase64: story.imageBase64,
-      createdAt: story.createdAt.toISOString(),
-      expiresAt: story.expiresAt.toISOString(),
-    }));
+    const normalizedStories = await Promise.all(
+      stories.map(async (story) => ({
+        id: story._id.toString(),
+        imageUrl: await getSignedUrlForUrl(story.imageUrl),
+        imageBase64: story.imageBase64,
+        createdAt: story.createdAt.toISOString(),
+        expiresAt: story.expiresAt.toISOString(),
+      }))
+    );
 
     return res.json({
       username: user.username,

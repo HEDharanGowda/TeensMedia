@@ -11,7 +11,9 @@ import './BottomNav.css';
 
 const resolveAvatarSrc = (value) => {
   if (!value) return null;
-  return value.startsWith('data:') ? value : `data:image/jpeg;base64,${value}`;
+  if (value.startsWith('http')) return value;
+  if (value.startsWith('data:')) return value;
+  return `data:image/jpeg;base64,${value}`;
 };
 
 const BottomNav = ({ currentUser }) => {

@@ -12,7 +12,9 @@ function errorHandler(err, req, res, next) {
     return next(err);
   }
 
-  return res.status(500).json({
+  const status = err.status && Number.isInteger(err.status) ? err.status : 500;
+
+  return res.status(status).json({
     status: 'ERROR',
     message: err.response?.data?.error?.message || err.message || 'Internal server error',
   });

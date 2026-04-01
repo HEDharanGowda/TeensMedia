@@ -1,0 +1,43 @@
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+
+name: Deploy MERN App
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Pull latest code
+        run: |
+          cd /home/ubuntu/TeensMedia
+          git pull origin main
+
+      # -------- BACKEND --------
+      - name: Install backend dependencies
+        run: |
+          cd /home/ubuntu/TeensMedia/backend
+          npm install
+
+      - name: Restart backend (PM2)
+        run: |
+          pm2 restart teens-api || pm2 start server.js --name teens-api
+
+      # -------- FRONTEND --------
+      - name: Install frontend dependencies
+        run: |
+          cd /home/ubuntu/TeensMedia/frontend
+          npm install
+
+      - name: Build frontend
+        run: |
+          cd /home/ubuntu/TeensMedia/frontend
+          npm run build
+
+      # -------- NGINX --------
+      - name: Restart nginx
+        run: sudo systemctl restart nginx

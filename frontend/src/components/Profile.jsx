@@ -65,6 +65,12 @@ const Profile = ({ token, currentUser, onLogout, onProfilePictureChange }) => {
       setFollowersCount(response.data.user.followersCount || 0);
       setFollowingCount(response.data.user.followingCount || 0);
       setIsFollowing(response.data.user.isFollowing || false);
+
+      // If this is the logged-in user's profile, sync avatar to keep bottom nav current
+      if (!username || username === currentUser?.username) {
+        const latestAvatar = resolveAvatarSrc(response.data.user.profilePicture);
+        onProfilePictureChange?.(latestAvatar);
+      }
     } catch (err) {
       if (err.response?.status === 404) {
         setError('User not found');

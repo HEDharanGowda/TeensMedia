@@ -7,9 +7,12 @@ const storySchema = new mongoose.Schema(
       ref: 'User',
       required: true,
     },
+    imageUrl: {
+      type: String,
+    },
+    // Legacy fallback until all stories are migrated
     imageBase64: {
       type: String,
-      required: true,
     },
     expiresAt: {
       type: Date,

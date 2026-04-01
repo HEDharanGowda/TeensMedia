@@ -43,7 +43,9 @@ const Profile = ({ token, currentUser, onLogout, onProfilePictureChange }) => {
 
   const resolveAvatarSrc = (value) => {
     if (!value) return null;
-    return value.startsWith('data:') ? value : `data:image/jpeg;base64,${value}`;
+    if (value.startsWith('http')) return value;
+    if (value.startsWith('data:')) return value;
+    return `data:image/jpeg;base64,${value}`;
   };
 
   const fetchProfile = async () => {
@@ -411,7 +413,7 @@ const Profile = ({ token, currentUser, onLogout, onProfilePictureChange }) => {
                 onClick={() => handlePostClick(post)}
               >
                 <img
-                  src={`data:image/jpeg;base64,${post.imageBase64}`}
+                  src={post.imageUrl || (post.imageBase64 ? `data:image/jpeg;base64,${post.imageBase64}` : '')}
                   alt={post.caption || 'Post'}
                   className="profile-post-image"
                 />

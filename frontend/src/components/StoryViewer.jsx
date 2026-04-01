@@ -22,7 +22,9 @@ const StoryViewer = ({
 
   const resolveAvatarSrc = (value) => {
     if (!value) return null;
-    return value.startsWith('data:') ? value : `data:image/jpeg;base64,${value}`;
+    if (value.startsWith('http')) return value;
+    if (value.startsWith('data:')) return value;
+    return `data:image/jpeg;base64,${value}`;
   };
 
   const currentUserStory = allStories[currentUserIndex];
@@ -205,7 +207,7 @@ const StoryViewer = ({
           {/* Story content */}
           <div className="story-viewer-content">
             <img
-              src={`data:image/jpeg;base64,${currentStory.imageBase64}`}
+              src={currentStory.imageUrl || (currentStory.imageBase64 ? `data:image/jpeg;base64,${currentStory.imageBase64}` : '')}
               alt="Story"
               className="story-viewer-image"
             />

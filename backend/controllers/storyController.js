@@ -1,6 +1,7 @@
 const Story = require('../models/Story');
 const User = require('../models/User');
 const { analyzeImageSafety } = require('../services/visionService');
+const { uploadBase64Image } = require('../services/storageService');
 const {
   MAX_VIOLATIONS,
   EXPLICIT_LEVEL,
@@ -82,9 +83,11 @@ async function createStory(req, res, next) {
     // Set expiration to 24 hours from now
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
+    const { imageUrl } = await uploadBase64Image(imageBase64, `stories/${authUserId}`);
+
     const story = await Story.create({
       userId: authUserId,
-      imageBase64,
+      imageUrl,
       expiresAt,
     });
 
@@ -94,7 +97,7 @@ async function createStory(req, res, next) {
       story: {
         id: story._id.toString(),
         userId: story.userId.toString(),
-        imageBase64: story.imageBase64,
+        imageUrl: story.imageUrl,
         expiresAt: story.expiresAt.toISOString(),
         createdAt: story.createdAt.toISOString(),
       },
@@ -114,7 +117,7 @@ async function getStories(req, res, next) {
     })
       .populate('userId', 'username profilePicture')
       .sort({ createdAt: -1 })
-      .select({ _id: 1, userId: 1, imageBase64: 1, createdAt: 1, expiresAt: 1 });
+      .select({ _id: 1, userId: 1, imageUrl: 1, imageBase64: 1, createdAt: 1, expiresAt: 1 });
 
     // Group stories by user (most recent story per user)
     const userStoriesMap = new Map();
@@ -131,6 +134,7 @@ async function getStories(req, res, next) {
       }
       userStoriesMap.get(userId).stories.push({
         id: story._id.toString(),
+        imageUrl: story.imageUrl,
         imageBase64: story.imageBase64,
         createdAt: story.createdAt.toISOString(),
         expiresAt: story.expiresAt.toISOString(),
@@ -164,10 +168,11 @@ async function getUserStories(req, res, next) {
       expiresAt: { $gt: now },
     })
       .sort({ createdAt: -1 })
-      .select({ _id: 1, imageBase64: 1, createdAt: 1, expiresAt: 1 });
+      .select({ _id: 1, imageUrl: 1, imageBase64: 1, createdAt: 1, expiresAt: 1 });
 
     const normalizedStories = stories.map((story) => ({
       id: story._id.toString(),
+      imageUrl: story.imageUrl,
       imageBase64: story.imageBase64,
       createdAt: story.createdAt.toISOString(),
       expiresAt: story.expiresAt.toISOString(),

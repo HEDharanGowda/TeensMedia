@@ -50,7 +50,7 @@ async function uploadBase64Image(imageBase64, keyPrefix = 'posts') {
     Key: key,
     Body: buffer,
     ContentType: 'image/jpeg',
-    ACL: 'public-read',
+    // No ACL: supports buckets with Object Ownership/BucketOwnerEnforced
   });
 
   await s3.send(command);

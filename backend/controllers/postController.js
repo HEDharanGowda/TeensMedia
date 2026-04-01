@@ -22,19 +22,21 @@ async function getPosts(req, res, next) {
       commentCountMap[item._id.toString()] = item.count;
     });
 
-    const normalizedPosts = posts.map((post) => ({
-      id: post._id.toString(),
-      userId: post.userId._id.toString(),
-      username: post.userId.username,
-      profilePicture: post.userId.profilePicture || null,
-      imageUrl: post.imageUrl,
-      imageBase64: post.imageBase64, // legacy fallback
-      caption: post.caption,
-      timestamp: post.createdAt.toISOString(),
-      likesCount: post.likes?.length || 0,
-      commentsCount: commentCountMap[post._id.toString()] || 0,
-      isLiked: userId ? post.likes?.some((id) => id.toString() === userId) : false,
-    }));
+    const normalizedPosts = posts
+      .filter((post) => post.userId) // guard against missing user refs
+      .map((post) => ({
+        id: post._id.toString(),
+        userId: post.userId._id.toString(),
+        username: post.userId.username,
+        profilePicture: post.userId.profilePicture || null,
+        imageUrl: post.imageUrl,
+        imageBase64: post.imageBase64, // legacy fallback
+        caption: post.caption,
+        timestamp: post.createdAt.toISOString(),
+        likesCount: post.likes?.length || 0,
+        commentsCount: commentCountMap[post._id.toString()] || 0,
+        isLiked: userId ? post.likes?.some((id) => id.toString() === userId) : false,
+      }));
 
     return res.json(normalizedPosts);
   } catch (error) {

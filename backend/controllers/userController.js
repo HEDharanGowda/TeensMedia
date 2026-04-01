@@ -1,5 +1,8 @@
 const User = require('../models/User');
 const Post = require('../models/Post');
+const { uploadBase64Image } = require('../services/storageService');
+const { analyzeImageSafety } = require('../services/visionService');
+const { EXPLICIT_LEVEL, QUESTIONABLE_LEVEL } = require('../config/moderation');
 
 async function getUserStatus(req, res, next) {
   try {
@@ -173,12 +176,33 @@ async function updateProfilePicture(req, res, next) {
       });
     }
 
-    user.profilePicture = profilePicture;
+    // Run SafeSearch moderation
+    const { adult, racy } = await analyzeImageSafety(profilePicture);
+    const isExplicit = adult === EXPLICIT_LEVEL || racy === EXPLICIT_LEVEL;
+    const isQuestionable = adult === QUESTIONABLE_LEVEL || racy === QUESTIONABLE_LEVEL;
+
+    if (isExplicit) {
+      return res.status(400).json({
+        status: 'ERROR',
+        message: 'Profile picture rejected due to explicit content',
+      });
+    }
+
+    if (isQuestionable) {
+      return res.status(400).json({
+        status: 'ERROR',
+        message: 'Profile picture flagged; please choose a different image',
+      });
+    }
+
+    const { imageUrl } = await uploadBase64Image(profilePicture, `profiles/${authUserId}`);
+
+    user.profilePicture = imageUrl;
     await user.save();
 
     return res.json({
       status: 'OK',
-      profilePicture,
+      profilePicture: imageUrl,
     });
   } catch (error) {
     return next(error);

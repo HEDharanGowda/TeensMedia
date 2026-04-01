@@ -12,14 +12,18 @@ import './Feed.css';
 const Motion = motion;
 
 const Feed = ({ posts, token, currentUser, onPostDeleted }) => {
+  const safePosts = Array.isArray(posts) ? posts : [];
   const [stories, setStories] = useState([]);
+  const safeStories = Array.isArray(stories) ? stories : [];
   const [showAddStory, setShowAddStory] = useState(false);
   const [viewingStory, setViewingStory] = useState(null);
   const [viewingStoryIndex, setViewingStoryIndex] = useState(0);
 
   const resolveAvatarSrc = (value) => {
     if (!value) return null;
-    return value.startsWith('data:') ? value : `data:image/jpeg;base64,${value}`;
+    if (value.startsWith('http')) return value;
+    if (value.startsWith('data:')) return value;
+    return `data:image/jpeg;base64,${value}`;
   };
 
   useEffect(() => {
@@ -52,7 +56,7 @@ const Feed = ({ posts, token, currentUser, onPostDeleted }) => {
   };
 
   // Check if current user has a story
-  const currentUserStory = stories.find(s => s.username === currentUser?.username);
+  const currentUserStory = safeStories.find(s => s.username === currentUser?.username);
   const currentUserAvatar = resolveAvatarSrc(currentUser?.profilePicture);
 
   return (
@@ -66,7 +70,7 @@ const Feed = ({ posts, token, currentUser, onPostDeleted }) => {
           className="story-item"
           onClick={() => {
             if (currentUserStory) {
-              handleStoryClick(currentUserStory, stories.findIndex(s => s.username === currentUser?.username));
+              handleStoryClick(currentUserStory, safeStories.findIndex(s => s.username === currentUser?.username));
             } else {
               setShowAddStory(true);
             }
@@ -106,7 +110,7 @@ const Feed = ({ posts, token, currentUser, onPostDeleted }) => {
         </Motion.div>
 
         {/* Other users' stories */}
-        {stories
+        {safeStories
           .filter(story => story.username !== currentUser?.username)
           .map((userStory) => (
             <Motion.div
@@ -114,7 +118,7 @@ const Feed = ({ posts, token, currentUser, onPostDeleted }) => {
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               className="story-item"
-              onClick={() => handleStoryClick(userStory, stories.findIndex(s => s.userId === userStory.userId))}
+              onClick={() => handleStoryClick(userStory, safeStories.findIndex(s => s.userId === userStory.userId))}
             >
               <div className="story-ring story-ring--active">
                 <div className="story-ring__inner">
@@ -139,8 +143,8 @@ const Feed = ({ posts, token, currentUser, onPostDeleted }) => {
       </Motion.div>
 
       <div className="feed-posts-grid">
-        {posts.length > 0 ? (
-          posts.map((post) => (
+        {safePosts.length > 0 ? (
+          safePosts.map((post) => (
             <article key={post.timestamp} className="feed-post-card">
               <div className="feed-post-header">
                 <div className="feed-post-user">

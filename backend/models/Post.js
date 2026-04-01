@@ -7,9 +7,16 @@ const postSchema = new mongoose.Schema(
       ref: 'User',
       required: true,
     },
-    imageBase64: {
+    imageUrl: {
       type: String,
       required: true,
+    },
+    thumbnailUrl: {
+      type: String,
+    },
+    // Legacy fallback until all posts are migrated to URLs
+    imageBase64: {
+      type: String,
     },
     caption: {
       type: String,

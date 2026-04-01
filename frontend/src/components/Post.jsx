@@ -184,9 +184,9 @@ const Post = ({ post, token, currentUser, onPostDeleted }) => {
       className="post-card"
     >
       <div className="post-media">
-        {post.imageBase64 ? (
+        {post.imageUrl || post.imageBase64 ? (
           <img
-            src={`data:image/jpeg;base64,${post.imageBase64}`}
+            src={post.imageUrl || `data:image/jpeg;base64,${post.imageBase64}`}
             alt="Post content"
             className="post-media-image"
           />

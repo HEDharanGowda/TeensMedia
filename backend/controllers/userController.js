@@ -56,10 +56,11 @@ async function getUserProfile(req, res, next) {
 
     const posts = await Post.find({ userId: authUserId })
       .sort({ createdAt: -1 })
-      .select({ _id: 1, imageBase64: 1, caption: 1, createdAt: 1 });
+      .select({ _id: 1, imageUrl: 1, imageBase64: 1, caption: 1, createdAt: 1 });
 
     const normalizedPosts = posts.map((post) => ({
       id: post._id.toString(),
+      imageUrl: post.imageUrl,
       imageBase64: post.imageBase64,
       caption: post.caption,
       timestamp: post.createdAt.toISOString(),
@@ -109,10 +110,11 @@ async function getUserProfileByUsername(req, res, next) {
 
     const posts = await Post.find({ userId: user._id })
       .sort({ createdAt: -1 })
-      .select({ _id: 1, imageBase64: 1, caption: 1, createdAt: 1 });
+      .select({ _id: 1, imageUrl: 1, imageBase64: 1, caption: 1, createdAt: 1 });
 
     const normalizedPosts = posts.map((post) => ({
       id: post._id.toString(),
+      imageUrl: post.imageUrl,
       imageBase64: post.imageBase64,
       caption: post.caption,
       timestamp: post.createdAt.toISOString(),

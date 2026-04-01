@@ -8,7 +8,7 @@ async function getPosts(req, res, next) {
     const posts = await Post.find({})
       .populate('userId', 'username profilePicture')
       .sort({ createdAt: -1 })
-      .select({ _id: 1, userId: 1, imageBase64: 1, caption: 1, createdAt: 1, likes: 1 });
+      .select({ _id: 1, userId: 1, imageUrl: 1, imageBase64: 1, caption: 1, createdAt: 1, likes: 1 });
 
     // Get comment counts for all posts
     const postIds = posts.map((post) => post._id);
@@ -27,7 +27,8 @@ async function getPosts(req, res, next) {
       userId: post.userId._id.toString(),
       username: post.userId.username,
       profilePicture: post.userId.profilePicture || null,
-      imageBase64: post.imageBase64,
+      imageUrl: post.imageUrl,
+      imageBase64: post.imageBase64, // legacy fallback
       caption: post.caption,
       timestamp: post.createdAt.toISOString(),
       likesCount: post.likes?.length || 0,

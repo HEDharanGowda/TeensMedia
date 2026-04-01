@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const Post = require('../models/Post');
 const { analyzeImageSafety } = require('../services/visionService');
+const { uploadBase64Image } = require('../services/storageService');
 const {
   MAX_VIOLATIONS,
   EXPLICIT_LEVEL,
@@ -70,9 +71,11 @@ async function checkContent(req, res, next) {
       });
     }
 
+    const { imageUrl } = await uploadBase64Image(imageBase64, `posts/${user._id}`);
+
     await Post.create({
       userId: user._id,
-      imageBase64,
+      imageUrl,
       caption,
     });
 

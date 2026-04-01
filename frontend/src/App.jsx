@@ -26,11 +26,6 @@ function App() {
   const [loading, setLoading] = useState(true);
   const location = useLocation();
 
-  // Always clear any persisted user on first load to force login screen
-  useEffect(() => {
-    localStorage.removeItem('instasafe_user');
-  }, []);
-
   const handleLogin = (userData) => {
     setUser(userData);
     localStorage.setItem('instasafe_user', JSON.stringify(userData));

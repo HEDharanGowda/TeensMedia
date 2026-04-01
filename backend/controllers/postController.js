@@ -1,5 +1,6 @@
 const Post = require('../models/Post');
 const Comment = require('../models/Comment');
+const { deleteObject, getKeyFromUrl } = require('../services/storageService');
 
 async function getPosts(req, res, next) {
   try {
@@ -68,6 +69,14 @@ async function deletePost(req, res, next) {
 
     // Delete all comments associated with this post
     await Comment.deleteMany({ postId: post._id });
+
+    // Delete image from S3 if present
+    if (post.imageUrl) {
+      const key = getKeyFromUrl(post.imageUrl);
+      if (key) {
+        await deleteObject(key);
+      }
+    }
 
     // Delete the post
     await Post.findByIdAndDelete(postId);

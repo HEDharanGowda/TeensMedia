@@ -1,4 +1,4 @@
-const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
+const { S3Client, PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
 const crypto = require('crypto');
 
 const {
@@ -30,6 +30,18 @@ function buildPublicUrl(key) {
   return `https://${S3_BUCKET}.s3.${S3_REGION}.amazonaws.com/${key}`;
 }
 
+function getKeyFromUrl(url) {
+  if (!url) return null;
+  if (S3_CDN_BASE_URL && url.startsWith(S3_CDN_BASE_URL)) {
+    return url.replace(`${S3_CDN_BASE_URL.replace(/\/$/, '')}/`, '');
+  }
+  const bucketHost = `https://${S3_BUCKET}.s3.${S3_REGION}.amazonaws.com/`;
+  if (url.startsWith(bucketHost)) {
+    return url.replace(bucketHost, '');
+  }
+  return null;
+}
+
 async function uploadBase64Image(imageBase64, keyPrefix = 'posts') {
   if (!imageBase64) {
     throw new Error('No image provided');
@@ -55,9 +67,17 @@ async function uploadBase64Image(imageBase64, keyPrefix = 'posts') {
 
   await s3.send(command);
 
-  return { imageUrl: buildPublicUrl(key) };
+  return { imageUrl: buildPublicUrl(key), key };
+}
+
+async function deleteObject(key) {
+  if (!key || !S3_BUCKET) return;
+  const command = new DeleteObjectCommand({ Bucket: S3_BUCKET, Key: key });
+  await s3.send(command);
 }
 
 module.exports = {
   uploadBase64Image,
+  deleteObject,
+  getKeyFromUrl,
 };

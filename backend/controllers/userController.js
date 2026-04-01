@@ -1,6 +1,6 @@
 const User = require('../models/User');
 const Post = require('../models/Post');
-const { uploadBase64Image } = require('../services/storageService');
+const { uploadBase64Image, deleteObject, getKeyFromUrl } = require('../services/storageService');
 const { analyzeImageSafety } = require('../services/visionService');
 const { EXPLICIT_LEVEL, QUESTIONABLE_LEVEL } = require('../config/moderation');
 
@@ -196,6 +196,14 @@ async function updateProfilePicture(req, res, next) {
     }
 
     const { imageUrl } = await uploadBase64Image(profilePicture, `profiles/${authUserId}`);
+
+    // delete previous avatar if it was a URL
+    if (user.profilePicture) {
+      const oldKey = getKeyFromUrl(user.profilePicture);
+      if (oldKey) {
+        await deleteObject(oldKey);
+      }
+    }
 
     user.profilePicture = imageUrl;
     await user.save();

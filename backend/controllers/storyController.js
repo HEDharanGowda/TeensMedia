@@ -1,7 +1,7 @@
 const Story = require('../models/Story');
 const User = require('../models/User');
 const { analyzeImageSafety } = require('../services/visionService');
-const { uploadBase64Image } = require('../services/storageService');
+const { uploadBase64Image, deleteObject, getKeyFromUrl } = require('../services/storageService');
 const {
   MAX_VIOLATIONS,
   EXPLICIT_LEVEL,
@@ -217,6 +217,13 @@ async function deleteStory(req, res, next) {
     }
 
     await Story.deleteOne({ _id: storyId });
+
+    if (story.imageUrl) {
+      const key = getKeyFromUrl(story.imageUrl);
+      if (key) {
+        await deleteObject(key);
+      }
+    }
 
     return res.json({
       status: 'OK',

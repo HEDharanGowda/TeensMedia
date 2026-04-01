@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FaArrowLeft, FaPaperPlane } from 'react-icons/fa';
@@ -19,6 +19,15 @@ const ChatView = ({ token, currentUser }) => {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
+  const addMessage = useCallback((message) => {
+    setMessages((prev) => {
+      if (prev.some((m) => m.messageId === message.messageId)) {
+        return prev;
+      }
+      return [...prev, message];
+    });
+  }, []);
+
   useEffect(() => {
     if (currentUser?.userId) {
       connectSocket(currentUser.userId);
@@ -30,7 +39,7 @@ const ChatView = ({ token, currentUser }) => {
     // Listen for new messages
     const handleNewMessage = (message) => {
       if (message.conversationId === conversationId) {
-        setMessages((prev) => [...prev, message]);
+        addMessage(message);
       }
     };
 
@@ -40,7 +49,7 @@ const ChatView = ({ token, currentUser }) => {
       leaveConversation(conversationId);
       offNewMessage(handleNewMessage);
     };
-  }, [conversationId, currentUser?.userId]);
+  }, [conversationId, currentUser?.userId, addMessage]);
 
   useEffect(() => {
     scrollToBottom();
@@ -86,12 +95,15 @@ const ChatView = ({ token, currentUser }) => {
     setSending(true);
 
     try {
-      await api.post(
+      const response = await api.post(
         `/messages/conversations/${conversationId}/messages`,
         { text: messageText },
         { headers: getAuthHeaders(token) }
       );
-      // Message will be added via socket listener
+
+      if (response?.data) {
+        addMessage(response.data);
+      }
     } catch (error) {
       console.error('Failed to send message:', error);
       setNewMessage(messageText); // Restore message on error

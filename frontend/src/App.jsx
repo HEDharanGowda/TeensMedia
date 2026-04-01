@@ -26,10 +26,32 @@ function App() {
   const [loading, setLoading] = useState(true);
   const location = useLocation();
 
+  const refreshUserProfile = useCallback(async (token) => {
+    if (!token) return;
+    try {
+      const response = await api.get('/user/profile', {
+        headers: getAuthHeaders(token),
+      });
+
+      const refreshedUser = {
+        userId: response.data.user.userId,
+        username: response.data.user.username,
+        profilePicture: response.data.user.profilePicture,
+        token,
+      };
+
+      setUser(refreshedUser);
+      localStorage.setItem('instasafe_user', JSON.stringify(refreshedUser));
+    } catch (error) {
+      console.error('Error refreshing user profile:', error);
+    }
+  }, []);
+
   const handleLogin = (userData) => {
     setUser(userData);
     localStorage.setItem('instasafe_user', JSON.stringify(userData));
     checkBanStatus(userData.token);
+    refreshUserProfile(userData.token);
   };
 
   const handleProfilePictureChange = (profilePicture) => {
@@ -95,6 +117,7 @@ function App() {
 
       setUser(userData);
       checkBanStatus(userData.token);
+      refreshUserProfile(userData.token);
 
       fetchPosts(userData.userId);
     }
@@ -108,7 +131,7 @@ function App() {
     }, 300000);
 
     return () => clearInterval(interval);
-  }, [checkBanStatus, user?.token, fetchPosts]);
+  }, [checkBanStatus, user?.token, fetchPosts, refreshUserProfile]);
 
   // While checking user, show nothing (or loader)
   if (loading) {
